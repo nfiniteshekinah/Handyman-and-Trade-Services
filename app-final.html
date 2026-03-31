@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Drake Trade — Business Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0c0b09;--panel:#181714;--card:#222018;--lift:#2e2b24;
+  --amber:#e49a20;--amber-l:#f0b040;--amber-d:#a06d10;
+  --rust:#c04420;--green:#3a8c5c;--blue:#2a5f8a;
+  --cream:#ede6d5;--warm:#bfb49a;--muted:#7a7260;
+  --border:rgba(228,154,32,.14);--borderl:rgba(228,154,32,.35);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--cream);font-family:'Barlow',sans-serif;font-weight:300;display:flex;flex-direction:column;}
+
+/* TOP BAR */
+.topbar{height:52px;min-height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0;}
+.topbar-brand{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:var(--amber);letter-spacing:.1em;}
+.topbar-brand span{color:var(--muted);font-size:.78rem;font-family:'Courier Prime',monospace;margin-left:10px;letter-spacing:.1em;}
+.topbar-r{display:flex;align-items:center;gap:14px;}
+.topbar-date{font-family:'Courier Prime',monospace;font-size:.66rem;color:var(--muted);letter-spacing:.1em;}
+.bell{background:none;border:1px solid var(--borderl);color:var(--amber);width:32px;height:32px;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;position:relative;}
+.bell-badge{position:absolute;top:-4px;right:-4px;width:15px;height:15px;background:var(--rust);border-radius:50%;font-size:.58rem;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Barlow',sans-serif;font-weight:600;}
+
+/* LAYOUT */
+.app-body{display:flex;flex:1;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{width:196px;min-width:196px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:16px 0;overflow-y:auto;flex-shrink:0;}
+.sb-sec{margin-bottom:24px;}
+.sb-lbl{font-family:'Courier Prime',monospace;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:0 14px;margin-bottom:6px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;font-size:.85rem;color:var(--warm);border-left:2px solid transparent;transition:all .15s;}
+.nav-item:hover{background:rgba(228,154,32,.05);color:var(--cream);}
+.nav-item.active{border-left-color:var(--amber);color:var(--amber);background:rgba(228,154,32,.08);}
+.nav-item .ic{font-size:.95rem;width:18px;text-align:center;}
+.nb{margin-left:auto;background:var(--rust);color:#fff;font-size:.58rem;padding:2px 5px;border-radius:8px;font-family:'Barlow',sans-serif;font-weight:600;}
+.nb.green{background:var(--green);}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;padding:20px;background:var(--bg);}
+.tab-panel{display:none;} .tab-panel.active{display:block;}
+
+/* KPIs */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.kpi{background:var(--card);border:1px solid var(--border);padding:18px;position:relative;overflow:hidden;}
+.kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.kpi.amber::after{background:var(--amber);}
+.kpi.green::after{background:var(--green);}
+.kpi.blue::after{background:var(--blue);}
+.kpi.rust::after{background:var(--rust);}
+.kpi-lbl{font-family:'Courier Prime',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+.kpi-val{font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1;}
+.kpi.amber .kpi-val{color:var(--amber);}
+.kpi.green .kpi-val{color:#4fa86e;}
+.kpi.blue .kpi-val{color:#5a9fd4;}
+.kpi.rust .kpi-val{color:#e07060;}
+.kpi-sub{font-size:.72rem;color:var(--muted);margin-top:3px;}
+
+/* SECTION HEADER */
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.sec-header h2{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.08em;color:var(--cream);}
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;}
+.fbtn{font-family:'Courier Prime',monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 10px;cursor:pointer;transition:all .15s;}
+.fbtn:hover,.fbtn.active{border-color:var(--amber-d);color:var(--amber);}
+
+/* BUTTONS */
+.btn-sm{font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:.1em;background:var(--amber);color:var(--bg);border:none;padding:7px 14px;cursor:pointer;transition:background .2s;white-space:nowrap;}
+.btn-sm:hover{background:var(--amber-l);}
+.btn-sm.ghost{background:transparent;color:var(--warm);border:1px solid var(--border);}
+.btn-sm.ghost:hover{border-color:var(--amber);color:var(--amber);}
+.btn-sm.danger{background:transparent;color:var(--rust);border:1px solid rgba(192,68,32,.3);}
+.btn-sm.danger:hover{background:var(--rust);color:#fff;}
+.btn-sm.green{background:var(--green);color:#fff;}
+.btn-sm.green:hover{background:#4aa870;}
+
+/* CARDS */
+.dash-card{background:var(--card);border:1px solid var(--border);padding:18px;margin-bottom:14px;}
+.dash-card-title{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.1em;color:var(--amber);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
+
+/* TABLE */
+.data-table-wrap{background:var(--card);border:1px solid var(--border);overflow:auto;margin-bottom:14px;}
+.data-table{width:100%;border-collapse:collapse;font-size:.86rem;}
+.data-table th{text-align:left;padding:9px 11px;font-family:'Courier Prime',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);}
+.data-table td{padding:10px 11px;border-bottom:1px solid rgba(46,43,36,.7);color:var(--warm);vertical-align:middle;}
+.data-table tr:hover td{background:rgba(228,154,32,.03);}
+.empty-state{padding:32px;text-align:center;color:var(--muted);font-size:.86rem;font-style:italic;}
+
+/* STATUS PILLS */
+.pill{display:inline-block;font-family:'Courier Prime',monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;}
+.pill-active{background:rgba(58,140,92,.2);color:#4fa86e;}
+.pill-pending{background:rgba(228,154,32,.15);color:var(--amber);}
+.pill-done{background:rgba(122,114,96,.2);color:var(--muted);}
+.pill-overdue{background:rgba(192,68,32,.2);color:#e07060;}
+.pill-paid{background:rgba(58,140,92,.2);color:#4fa86e;}
+.pill-partial{background:rgba(228,154,32,.15);color:var(--amber);}
+.pill-unpaid{background:rgba(192,68,32,.2);color:#e07060;}
+
+/* CATEGORY PILLS */
+.cat-fuel{background:rgba(192,68,32,.2);color:#e07060;}
+.cat-tools{background:rgba(42,95,138,.2);color:#5a9fd4;}
+.cat-supplies{background:rgba(58,140,92,.2);color:#4fa86e;}
+.cat-labor{background:rgba(228,154,32,.15);color:var(--amber);}
+.cat-equip{background:rgba(180,120,30,.2);color:#d4a040;}
+.cat-other{background:rgba(122,114,96,.2);color:var(--warm);}
+
+/* FORMS */
+.form-card{background:var(--card);border:1px solid var(--border);padding:24px;margin-bottom:16px;}
+.form-card h3{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:.1em;color:var(--amber);margin-bottom:18px;}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.field label{font-family:'Courier Prime',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+.field input,.field select,.field textarea{background:var(--lift);border:1px solid rgba(122,114,96,.25);color:var(--cream);padding:9px 11px;font-family:'Barlow',sans-serif;font-size:.9rem;font-weight:300;outline:none;transition:border-color .2s;width:100%;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--amber-d);}
+.field select option{background:var(--card);}
+.field textarea{resize:vertical;min-height:70px;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.frow.tri{grid-template-columns:1fr 1fr 1fr;}
+.frow.quad{grid-template-columns:1fr 1fr 1fr 1fr;}
+.frow.full{grid-template-columns:1fr;}
+.form-actions{display:flex;gap:8px;margin-top:6px;}
+
+/* TASK ROW */
+.task-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:.86rem;}
+.task-row:last-child{border-bottom:none;}
+.task-check{width:17px;height:17px;border:1px solid var(--borderl);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:.66rem;}
+.task-check.done{background:var(--amber);border-color:var(--amber);color:var(--bg);}
+.task-text{flex:1;color:var(--warm);} .task-text.done{text-decoration:line-through;color:var(--muted);}
+.task-due{font-family:'Courier Prime',monospace;font-size:.62rem;color:var(--muted);}
+.task-due.today{color:var(--amber);} .task-due.over{color:var(--rust);}
+
+/* MILEAGE */
+.mile-total{background:var(--card);border:1px solid var(--borderl);padding:22px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.mile-big{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:var(--amber);line-height:1;}
+.mile-sub{color:var(--muted);font-size:.8rem;margin-top:3px;}
+.mile-deduct{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#4fa86e;}
+
+/* MILEIQ */
+.mileiq-box{background:rgba(42,95,138,.12);border:1px solid rgba(42,95,138,.3);padding:20px;margin-bottom:16px;}
+.mileiq-box h4{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.1em;color:#5a9fd4;margin-bottom:10px;}
+.mileiq-box p{font-size:.84rem;color:var(--muted);line-height:1.65;margin-bottom:12px;}
+.mileiq-box code{font-family:'Courier Prime',monospace;font-size:.78rem;background:var(--lift);padding:2px 7px;color:var(--warm);}
+.upload-zone{border:2px dashed var(--borderl);background:var(--lift);padding:28px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:14px;}
+.upload-zone:hover{border-color:var(--amber);}
+.upload-zone p{color:var(--muted);font-size:.86rem;margin-top:8px;}
+.upload-zone .up-icon{font-size:1.8rem;margin-bottom:6px;}
+.upload-zone input[type=file]{display:none;}
+
+/* RECEIPT AI */
+.processing{display:none;background:var(--lift);border:1px solid var(--borderl);padding:18px;text-align:center;margin-bottom:14px;}
+.processing.vis{display:block;}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--amber);border-radius:50%;animation:spin .8s linear infinite;margin-right:8px;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* AI CHAT (Material Analyzer) */
+.ai-chat{background:var(--card);border:1px solid var(--border);display:flex;flex-direction:column;height:420px;}
+.ai-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.ai-msg{max-width:85%;padding:12px 14px;font-size:.88rem;line-height:1.65;}
+.ai-msg.user{background:rgba(228,154,32,.12);border:1px solid var(--borderl);align-self:flex-end;color:var(--cream);}
+.ai-msg.ai{background:var(--lift);border:1px solid var(--border);align-self:flex-start;color:var(--warm);}
+.ai-msg .ai-label{font-family:'Courier Prime',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
+.ai-msg.user .ai-label{color:var(--amber);}
+.ai-msg.ai .ai-label{color:#5a9fd4;}
+.ai-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);}
+.ai-input-row input{flex:1;background:var(--lift);border:1px solid rgba(122,114,96,.25);color:var(--cream);padding:9px 12px;font-family:'Barlow',sans-serif;font-size:.88rem;outline:none;}
+.ai-input-row input:focus{border-color:var(--amber-d);}
+.ai-suggestions{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 10px;}
+.ai-sug{font-family:'Courier Prime',monospace;font-size:.64rem;letter-spacing:.08em;background:transparent;border:1px solid var(--border);color:var(--muted);padding:4px 10px;cursor:pointer;transition:all .15s;}
+.ai-sug:hover{border-color:var(--amber-d);color:var(--amber);}
+
+/* CONTRACTOR CARDS */
+.contractor-card{background:var(--card);border:1px solid var(--border);padding:20px;margin-bottom:12px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+.c-avatar{width:44px;height:44px;background:var(--lift);border:1px solid var(--borderl);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--amber);flex-shrink:0;}
+.c-info{flex:1;} .c-name{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.06em;color:var(--cream);}
+.c-meta{font-size:.78rem;color:var(--muted);margin-top:2px;}
+.c-stats{display:flex;gap:20px;align-items:center;}
+.c-stat .n{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--cream);} .c-stat .l{font-family:'Courier Prime',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.warn-badge{background:rgba(192,68,32,.15);border:1px solid rgba(192,68,32,.3);color:#e07060;padding:5px 10px;font-family:'Courier Prime',monospace;font-size:.66rem;letter-spacing:.08em;}
+.ok-badge{background:rgba(58,140,92,.1);border:1px solid rgba(58,140,92,.2);color:#4fa86e;padding:5px 10px;font-family:'Courier Prime',monospace;font-size:.66rem;letter-spacing:.08em;}
+
+/* CLIENT PORTAL */
+.portal-card{background:var(--card);border:1px solid var(--borderl);padding:20px;margin-bottom:12px;}
+.portal-link{font-family:'Courier Prime',monospace;font-size:.76rem;background:var(--lift);border:1px solid var(--border);padding:8px 12px;color:var(--amber);word-break:break-all;display:block;margin:8px 0;}
+
+/* REPORT */
+.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.report-card{background:var(--card);border:1px solid var(--border);padding:20px;}
+.report-card h4{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.1em;color:var(--amber);margin-bottom:12px;}
+.rep-row{display:flex;justify-content:space-between;font-size:.86rem;padding:6px 0;border-bottom:1px solid var(--border);}
+.rep-row:last-child{border-bottom:none;}
+.rep-row .rl{color:var(--warm);} .rep-row .rv{color:var(--cream);}
+.rep-row.total{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--amber);border-top:1px solid var(--borderl);}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:800;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--panel);border:1px solid var(--borderl);padding:28px;max-width:460px;width:90%;max-height:82vh;overflow-y:auto;position:relative;}
+.modal h3{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.1em;color:var(--amber);margin-bottom:18px;}
+.modal-close{background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;position:absolute;top:14px;right:16px;}
+.modal-actions{display:flex;gap:8px;margin-top:16px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;right:18px;z-index:9999;background:var(--amber);color:var(--bg);font-family:'Bebas Neue',sans-serif;font-size:.92rem;letter-spacing:.1em;padding:11px 20px;transform:translateY(60px);opacity:0;transition:all .3s;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--amber-d);}
+
+/* RESPONSIVE */
+@media(max-width:880px){
+  .sidebar{width:48px;min-width:48px;}
+  .sb-lbl,.nav-item span:not(.ic),.nb{display:none;}
+  .nav-item{justify-content:center;padding:10px;}
+  .kpi-grid{grid-template-columns:1fr 1fr;}
+  .frow.quad,.frow.tri{grid-template-columns:1fr 1fr;}
+  .report-grid{grid-template-columns:1fr;}
+}
+@media(max-width:560px){
+  .kpi-grid{grid-template-columns:1fr;}
+  .frow,.frow.tri,.frow.quad{grid-template-columns:1fr;}
+  .contractor-card{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-brand">DRAKE TRADE <span>BUSINESS MANAGER v3</span></div>
+  <div class="topbar-r">
+    <div class="topbar-date" id="topDate"></div>
+    <button class="bell" onclick="showTab('tasks')" title="Tasks">🔔<span class="bell-badge" id="taskBadge">0</span></button>
+  </div>
+</div>
+
+<div class="app-body">
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-sec">
+    <div class="sb-lbl">Overview</div>
+    <div class="nav-item active" onclick="showTab('dashboard')" id="nav-dashboard"><span class="ic">📊</span><span>Dashboard</span></div>
+    <div class="nav-item" onclick="showTab('tasks')" id="nav-tasks"><span class="ic">✅</span><span>Tasks</span><span class="nb" id="taskBadge2">0</span></div>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-lbl">Business</div>
+    <div class="nav-item" onclick="showTab('clients')" id="nav-clients"><span class="ic">👥</span><span>Clients / CRM</span></div>
+    <div class="nav-item" onclick="showTab('jobs')" id="nav-jobs"><span class="ic">🏗️</span><span>Jobs</span></div>
+    <div class="nav-item" onclick="showTab('invoices')" id="nav-invoices"><span class="ic">📄</span><span>Invoices</span></div>
+    <div class="nav-item" onclick="showTab('portal')" id="nav-portal"><span class="ic">🔗</span><span>Client Portal</span></div>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-lbl">Finance</div>
+    <div class="nav-item" onclick="showTab('expenses')" id="nav-expenses"><span class="ic">💳</span><span>Expenses</span></div>
+    <div class="nav-item" onclick="showTab('receipts')" id="nav-receipts"><span class="ic">📷</span><span>Receipts AI</span></div>
+    <div class="nav-item" onclick="showTab('mileage')" id="nav-mileage"><span class="ic">🚗</span><span>Mileage</span></div>
+    <div class="nav-item" onclick="showTab('hours')" id="nav-hours"><span class="ic">⏱️</span><span>Hours</span></div>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-lbl">Tools</div>
+    <div class="nav-item" onclick="showTab('materials')" id="nav-materials"><span class="ic">🧱</span><span>Material Costs AI</span></div>
+    <div class="nav-item" onclick="showTab('contractors')" id="nav-contractors"><span class="ic">👷</span><span>1099 Contractors</span></div>
+    <div class="nav-item" onclick="showTab('reports')" id="nav-reports"><span class="ic">📋</span><span>Tax Report</span></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- DASHBOARD -->
+<div class="tab-panel active" id="tab-dashboard">
+  <div class="sec-header"><h2>DASHBOARD</h2><div class="topbar-date" id="dashDate" style="font-family:'Courier Prime',monospace;font-size:.68rem;color:var(--muted);letter-spacing:.1em;"></div></div>
+  <div class="kpi-grid">
+    <div class="kpi amber"><div class="kpi-lbl">Total Expenses YTD</div><div class="kpi-val" id="kpi-exp">$0</div><div class="kpi-sub">All categories</div></div>
+    <div class="kpi green"><div class="kpi-lbl">Miles YTD</div><div class="kpi-val" id="kpi-miles">0</div><div class="kpi-sub" id="kpi-mile-sub">$0 deduction</div></div>
+    <div class="kpi blue"><div class="kpi-lbl">Open Invoices</div><div class="kpi-val" id="kpi-invoices">$0</div><div class="kpi-sub" id="kpi-inv-sub">0 unpaid</div></div>
+    <div class="kpi rust"><div class="kpi-lbl">Active Jobs</div><div class="kpi-val" id="kpi-jobs">0</div><div class="kpi-sub">In progress</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    <div class="dash-card">
+      <div class="dash-card-title">TODAY'S TASKS <button class="btn-sm ghost" onclick="showTab('tasks')" style="font-size:.7rem;padding:3px 8px">View All</button></div>
+      <div id="dash-tasks"></div>
+      <div style="display:flex;gap:7px;margin-top:10px;">
+        <input type="text" id="quick-task" placeholder="Quick add task..." style="flex:1;background:var(--lift);border:1px solid rgba(122,114,96,.25);color:var(--cream);padding:7px 10px;font-family:'Barlow',sans-serif;font-size:.86rem;outline:none;" onkeydown="if(event.key==='Enter')quickTask()"/>
+        <button class="btn-sm" onclick="quickTask()">Add</button>
+      </div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title">RECENT JOBS <button class="btn-sm ghost" onclick="showTab('jobs')" style="font-size:.7rem;padding:3px 8px">All Jobs</button></div>
+      <div id="dash-jobs"></div>
+    </div>
+  </div>
+  <div class="dash-card" style="margin-top:14px;">
+    <div class="dash-card-title">EXPENSE BREAKDOWN</div>
+    <div id="dash-cats" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+  </div>
+</div>
+
+<!-- TASKS -->
+<div class="tab-panel" id="tab-tasks">
+  <div class="sec-header"><h2>TASKS &amp; REMINDERS</h2>
+    <div class="filter-bar">
+      <button class="fbtn active" onclick="filterTasks('all',this)">All</button>
+      <button class="fbtn" onclick="filterTasks('daily',this)">Daily</button>
+      <button class="fbtn" onclick="filterTasks('weekly',this)">Weekly</button>
+      <button class="fbtn" onclick="filterTasks('job',this)">Job</button>
+      <button class="fbtn" onclick="filterTasks('admin',this)">Admin</button>
+    </div>
+  </div>
+  <div class="form-card">
+    <h3>Add Task / Reminder</h3>
+    <div class="frow">
+      <div class="field"><label>Description *</label><input type="text" id="t-desc" placeholder="Task description"/></div>
+      <div class="field"><label>Due Date</label><input type="date" id="t-due"/></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Category</label><select id="t-cat"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="job">Job Task</option><option value="admin">Admin / Tax</option><option value="reminder">Reminder</option></select></div>
+      <div class="field"><label>Priority</label><select id="t-pri"><option value="normal">Normal</option><option value="high">High</option><option value="low">Low</option></select></div>
+    </div>
+    <div class="form-actions"><button class="btn-sm" onclick="addTask()">Add Task</button></div>
+  </div>
+  <div id="task-list-full"></div>
+</div>
+
+<!-- CLIENTS / CRM -->
+<div class="tab-panel" id="tab-clients">
+  <div class="sec-header"><h2>CLIENTS / CRM</h2><button class="btn-sm" onclick="openModal('client-modal')">+ Add Client</button></div>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th>Jobs</th><th>Total Billed</th><th>Last Job</th><th></th></tr></thead>
+      <tbody id="clients-tbody"><tr><td colspan="8" class="empty-state">No clients yet. Click "+ Add Client" to get started.</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- JOBS -->
+<div class="tab-panel" id="tab-jobs">
+  <div class="sec-header"><h2>JOBS</h2>
+    <div class="filter-bar">
+      <button class="fbtn active" onclick="filterJobs('all',this)">All</button>
+      <button class="fbtn" onclick="filterJobs('active',this)">Active</button>
+      <button class="fbtn" onclick="filterJobs('pending',this)">Pending</button>
+      <button class="fbtn" onclick="filterJobs('complete',this)">Complete</button>
+    </div>
+    <button class="btn-sm" onclick="openModal('job-modal')">+ New Job</button>
+  </div>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Job</th><th>Client</th><th>Type</th><th>Status</th><th>Est. Value</th><th>Expenses</th><th>Profit</th><th>Start</th><th>Actions</th></tr></thead>
+      <tbody id="jobs-tbody"><tr><td colspan="9" class="empty-state">No jobs logged yet.</td></tr></tbody>
+    </table>
+  </div>
+  <!-- Change Orders -->
+  <div class="form-card">
+    <h3>Log Change Order</h3>
+    <div class="frow tri">
+      <div class="field"><label>Job</label><select id="co-job"><option value="">— Select Job —</option></select></div>
+      <div class="field"><label>Change Description</label><input type="text" id="co-desc" placeholder="Additional work scope"/></div>
+      <div class="field"><label>Amount (+/-)</label><input type="number" id="co-amt" placeholder="0.00" step="0.01"/></div>
+    </div>
+    <div class="form-actions"><button class="btn-sm" onclick="addChangeOrder()">Log Change Order</button></div>
+  </div>
+</div>
+
+<!-- INVOICES -->
+<div class="tab-panel" id="tab-invoices">
+  <div class="sec-header"><h2>INVOICES</h2>
+    <div class="filter-bar">
+      <button class="fbtn active" onclick="filterInv('all',this)">All</button>
+      <button class="fbtn" onclick="filterInv('unpaid',this)">Unpaid</button>
+      <button class="fbtn" onclick="filterInv('partial',this)">Partial</button>
+      <button class="fbtn" onclick="filterInv('paid',this)">Paid</button>
+      <button class="fbtn" onclick="filterInv('overdue',this)">Overdue</button>
+    </div>
+    <button class="btn-sm" onclick="openModal('inv-modal')">+ New Invoice</button>
+  </div>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Invoice #</th><th>Client</th><th>Job</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Status</th><th>Due Date</th><th>Payment Method</th><th>Actions</th></tr></thead>
+      <tbody id="inv-tbody"><tr><td colspan="10" class="empty-state">No invoices yet.</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CLIENT PORTAL -->
+<div class="tab-panel" id="tab-portal">
+  <div class="sec-header"><h2>CLIENT PORTAL LINKS</h2></div>
+  <div class="dash-card">
+    <p style="font-size:.88rem;color:var(--warm);margin-bottom:16px;">Generate a shareable project portal link for each client. They can view job status, photos, invoices, and documents — no login required. Link can be texted or emailed.</p>
+    <div class="frow">
+      <div class="field"><label>Select Job</label><select id="portal-job"><option value="">— Select Job —</option></select></div>
+      <div class="field"><label>Sections to Show</label><select id="portal-sections" multiple style="height:80px;"><option selected>Job Status</option><option selected>Photos</option><option selected>Invoice</option><option>Change Orders</option><option>Notes</option></select></div>
+    </div>
+    <button class="btn-sm" onclick="genPortalLink()">Generate Portal Link</button>
+  </div>
+  <div id="portal-links"></div>
+</div>
+
+<!-- EXPENSES -->
+<div class="tab-panel" id="tab-expenses">
+  <div class="sec-header"><h2>EXPENSES</h2>
+    <div class="filter-bar" id="exp-filters">
+      <button class="fbtn active" onclick="filterExp('all',this)">All</button>
+      <button class="fbtn" onclick="filterExp('Fuel / Gas',this)">Fuel</button>
+      <button class="fbtn" onclick="filterExp('Tools',this)">Tools</button>
+      <button class="fbtn" onclick="filterExp('Building Supplies',this)">Supplies</button>
+      <button class="fbtn" onclick="filterExp('Equipment',this)">Equipment</button>
+      <button class="fbtn" onclick="filterExp('Other',this)">Other</button>
+    </div>
+  </div>
+  <div class="form-card">
+    <h3>Log Expense</h3>
+    <div class="frow quad">
+      <div class="field"><label>Date *</label><input type="date" id="exp-date"/></div>
+      <div class="field"><label>Amount *</label><input type="number" id="exp-amt" placeholder="0.00" step="0.01"/></div>
+      <div class="field"><label>Category *</label><select id="exp-cat">
+        <option value="Fuel / Gas">⛽ Fuel / Gas</option><option value="Tools">🔧 Tools</option>
+        <option value="Building Supplies">🧱 Building Supplies</option><option value="Labor / Subs">👷 Labor</option>
+        <option value="Equipment">⚙️ Equipment</option><option value="Vehicle">🚗 Vehicle</option>
+        <option value="Insurance">🛡️ Insurance</option><option value="Office / Admin">📁 Admin</option>
+        <option value="Permits / Fees">📋 Permits</option><option value="Other">📦 Other</option>
+      </select></div>
+      <div class="field"><label>Vendor</label><input type="text" id="exp-vendor" placeholder="Home Depot, Shell..."/></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Job (optional)</label><select id="exp-job"><option value="">— No Job —</option></select></div>
+      <div class="field"><label>Description</label><input type="text" id="exp-desc" placeholder="Brief note"/></div>
+    </div>
+    <div class="form-actions"><button class="btn-sm" onclick="addExpense()">Log Expense</button><button class="btn-sm ghost" onclick="clearExpForm()">Clear</button></div>
+  </div>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Date</th><th>Category</th><th>Vendor</th><th>Job</th><th>Description</th><th>Amount</th><th>Receipt</th><th></th></tr></thead>
+      <tbody id="exp-tbody"><tr><td colspan="8" class="empty-state">No expenses logged yet.</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- RECEIPTS AI -->
+<div class="tab-panel" id="tab-receipts">
+  <div class="sec-header"><h2>RECEIPT AUTO-LOG (AI)</h2></div>
+  <div class="form-card">
+    <h3>Upload Receipt — AI Auto-Categorize</h3>
+    <p style="font-size:.86rem;color:var(--muted);margin-bottom:18px;">Upload a photo or PDF of any receipt. Claude AI reads it and auto-fills vendor, amount, date, and category into your expense log.</p>
+    <div class="upload-zone" onclick="document.getElementById('rcpt-upload').click()">
+      <input type="file" id="rcpt-upload" accept="image/*,.pdf" onchange="processReceipt(this)"/>
+      <div class="up-icon">📷</div>
+      <p><strong style="color:var(--cream)">Click to upload receipt</strong><br>Photo, screenshot, or PDF — gas stations, hardware stores, lumber yards, tool shops</p>
+    </div>
+    <div class="processing" id="rcpt-processing"><div><span class="spinner"></span><strong>Reading receipt with AI...</strong></div></div>
+    <div id="rcpt-result" style="display:none;">
+      <div style="background:var(--lift);border:1px solid var(--borderl);padding:18px;margin-bottom:14px;">
+        <p style="font-family:'Courier Prime',monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:12px;">AI DETECTED — Review &amp; Confirm:</p>
+        <div class="frow quad">
+          <div class="field"><label>Date</label><input type="date" id="r-date"/></div>
+          <div class="field"><label>Amount</label><input type="number" id="r-amt" step="0.01"/></div>
+          <div class="field"><label>Category</label><select id="r-cat">
+            <option value="Fuel / Gas">⛽ Fuel / Gas</option><option value="Tools">🔧 Tools</option>
+            <option value="Building Supplies">🧱 Building Supplies</option><option value="Equipment">⚙️ Equipment</option>
+            <option value="Vehicle">🚗 Vehicle</option><option value="Other">📦 Other</option>
+          </select></div>
+          <div class="field"><label>Vendor</label><input type="text" id="r-vendor"/></div>
+        </div>
+        <div class="field"><label>Description</label><input type="text" id="r-desc"/></div>
+        <div class="field"><label>Assign to Job</label><select id="r-job"><option value="">— No Job —</option></select></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-sm" onclick="confirmReceipt()">✓ Log Expense</button>
+        <button class="btn-sm ghost" onclick="cancelReceipt()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MILEAGE -->
+<div class="tab-panel" id="tab-mileage">
+  <div class="sec-header"><h2>MILEAGE LOG</h2></div>
+  <div class="mile-total">
+    <div><div style="font-family:'Courier Prime',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Total Miles YTD</div><div class="mile-big" id="mile-total-disp">0 mi</div><div class="mile-sub">IRS Rate 2025: $0.70/mile</div></div>
+    <div style="text-align:right;"><div style="font-family:'Courier Prime',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Est. Tax Deduction</div><div class="mile-deduct" id="mile-deduct-disp">$0.00</div><div class="mile-sub">Federal standard mileage</div></div>
+  </div>
+  <!-- MileIQ Integration -->
+  <div class="mileiq-box">
+    <h4>📱 MILEIQ INTEGRATION</h4>
+    <p>MileIQ's API is currently in alpha (Teams plan only). In the meantime, export your drives from MileIQ as CSV and import them here — all drives will auto-populate your mileage log instantly.</p>
+    <p><strong style="color:var(--warm)">To export from MileIQ:</strong> Open MileIQ app → Reports → Export → CSV → save file → upload below.</p>
+    <p>When MileIQ opens their API publicly, paste your Bearer token in <code>Settings → MileIQ API Key</code> for live auto-sync.</p>
+    <div class="upload-zone" onclick="document.getElementById('mileiq-csv').click()" style="margin-top:12px;">
+      <input type="file" id="mileiq-csv" accept=".csv,.xlsx" onchange="importMileIQ(this)"/>
+      <div class="up-icon">📊</div>
+      <p><strong style="color:var(--cream)">Import MileIQ CSV Export</strong><br>Auto-populates all drives into your mileage log</p>
+    </div>
+    <div id="mileiq-status" style="display:none;font-family:'Courier Prime',monospace;font-size:.72rem;color:#4fa86e;margin-top:8px;"></div>
+  </div>
+  <div class="form-card">
+    <h3>Log Manual Entry</h3>
+    <div class="frow tri">
+      <div class="field"><label>Date *</label><input type="date" id="mi-date"/></div>
+      <div class="field"><label>Miles *</label><input type="number" id="mi-miles" placeholder="0" step="0.1"/></div>
+      <div class="field"><label>Purpose / Job</label><input type="text" id="mi-purpose" placeholder="Job site, supply run..."/></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>From</label><input type="text" id="mi-from" placeholder="Live Oak, FL"/></div>
+      <div class="field"><label>To</label><input type="text" id="mi-to" placeholder="Destination"/></div>
+    </div>
+    <div class="form-actions"><button class="btn-sm" onclick="addMileage()">Log Miles</button></div>
+  </div>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Date</th><th>Miles</th><th>From</th><th>To</th><th>Purpose</th><th>Deduction</th><th>Source</th><th></th></tr></thead>
+      <tbody id="mile-tbody"><tr><td colspan="8" class="empty-state">No mileage logged yet.</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- HOURS -->
+<div class="tab-panel" id="tab-hours">
+  <div class="sec-header"><h2>HOURS LOG</h2></div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+    <div class="kpi amber"><div class="kpi-lbl">Total Hours YTD</div><div class="kpi-val" id="hr-ytd">0</div></div>
+    <div class="kpi green"><div class="kpi-lbl">This Week</div><div class="kpi-val" id="hr-week">0</div></div>
+    <div class="kpi blue"><div class="kpi-lbl">Unique Jobs</div><div class="kpi-val" id="hr-jobs">0</div></div>
+  </div>
+  <div class="form-card">
+    <h3>Log Hours</h3>
+    <div class="frow quad">
+      <div class="field"><label>Date *</label><input type="date" id="hr-date"/></div>
+      <div class="field"><label>Hours *</label><input type="number" id="hr-hrs" placeholder="8.0" step="0.25"/></div>
+      <div class="field"><label>Worker</label><select id="hr-worker"><option>David Drake</option><option>Contractor 1</option><option>Contractor 2</option></select></div>
+      <div class="field"><label>Job *</label><select id="hr-job"><option value="">— Select Job —</option></select></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Task Description</label><input type="text" id="hr-desc" placeholder="What was done?"/></div>
+      <div class="field"><label>Hourly Rate ($)</label><input type="number" id="hr-rate" placeholder="85.00" step="0.01"/></div>
+    </div>
+    <div class="form-actions"><button class="btn-sm" onclick="addHours()">Log Hours</button></div>
+  </div>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Date</th><th>Worker</th><th>Job</th><th>Hours</th><th>Rate</th><th>Value</th><th>Description</th><th></th></tr></thead>
+      <tbody id="hr-tbody"><tr><td colspan="8" class="empty-state">No hours logged yet.</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MATERIAL COST ANALYZER (AI) -->
+<div class="tab-panel" id="tab-materials">
+  <div class="sec-header"><h2>MATERIAL COST ANALYZER (AI)</h2></div>
+  <div class="dash-card" style="margin-bottom:14px;">
+    <p style="font-size:.88rem;color:var(--warm);line-height:1.7;">Ask the AI to analyze your materials list for <strong style="color:var(--cream)">cost savings, bulk pricing, cheaper alternatives, vendor comparisons, waste reduction, and best local sources</strong> in North Florida. Paste your list or describe your project.</p>
+  </div>
+  <div class="ai-chat">
+    <div class="ai-messages" id="ai-msgs">
+      <div class="ai-msg ai"><div class="ai-label">🧱 Material Cost AI</div>I'm your material cost analysis assistant. Tell me what you're buying for a job and I'll help you find savings, compare options, identify bulk deals, and flag cheaper alternatives. What are you working with?</div>
+    </div>
+    <div class="ai-suggestions">
+      <button class="ai-sug" onclick="sendAI('I need 200 linear feet of 2x4 framing lumber, 4x8 plywood sheets x50, and roofing nails x5000 for a residential build in Live Oak FL')">🪵 Lumber quote</button>
+      <button class="ai-sug" onclick="sendAI('What\'s the best way to buy 12/2 Romex wire in bulk for electrical rough-in? I need about 2000 feet total')">⚡ Bulk wire pricing</button>
+      <button class="ai-sug" onclick="sendAI('Compare PVC vs CPVC vs PEX for residential plumbing rough-in — cost per foot, labor, durability')">🔧 Pipe comparison</button>
+      <button class="ai-sug" onclick="sendAI('I need 500 sq ft of ceramic tile and matching grout for a bathroom remodel. Best options under $2/sqft?')">🏠 Tile budget options</button>
+      <button class="ai-sug" onclick="sendAI('What supplies can I buy at an electrical wholesaler instead of Home Depot to save money on a panel upgrade job?')">💡 Wholesaler savings</button>
+    </div>
+    <div class="ai-input-row">
+      <input type="text" id="ai-input" placeholder="Describe your materials list or ask about pricing..." onkeydown="if(event.key==='Enter')sendAI()"/>
+      <button class="btn-sm" onclick="sendAI()">Ask AI</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTRACTORS / 1099 -->
+<div class="tab-panel" id="tab-contractors">
+  <div class="sec-header"><h2>CONTRACTORS / 1099</h2><button class="btn-sm" onclick="openModal('c-modal')">+ Add Contractor</button></div>
+  <div style="background:rgba(192,68,32,.1);border:1px solid rgba(192,68,32,.25);padding:12px 16px;margin-bottom:18px;font-size:.84rem;color:var(--warm);">
+    <strong style="color:var(--amber)">⚠ 1099-NEC Reminder:</strong> Issue Form 1099-NEC to any contractor paid $600+ during the tax year. Check thresholds below.
+  </div>
+  <div id="contractors-list"></div>
+  <div class="form-card" style="margin-top:16px;">
+    <h3>Log Payment</h3>
+    <div class="frow quad">
+      <div class="field"><label>Contractor *</label><select id="pay-c"><option value="">— Select —</option></select></div>
+      <div class="field"><label>Date *</label><input type="date" id="pay-date"/></div>
+      <div class="field"><label>Amount *</label><input type="number" id="pay-amt" placeholder="0.00" step="0.01"/></div>
+      <div class="field"><label>Job / Description</label><input type="text" id="pay-desc" placeholder="Job name or task"/></div>
+    </div>
+    <div class="form-actions"><button class="btn-sm" onclick="logPay()">Log Payment</button></div>
+  </div>
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Date</th><th>Contractor</th><th>Amount</th><th>Job</th><th></th></tr></thead>
+      <tbody id="pay-tbody"><tr><td colspan="5" class="empty-state">No payments logged.</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAX REPORT -->
+<div class="tab-panel" id="tab-reports">
+  <div class="sec-header"><h2>TAX &amp; BUSINESS REPORT</h2>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-sm" onclick="window.print()">🖨 Print</button>
+      <button class="btn-sm ghost" onclick="exportCSV()">📊 Export CSV</button>
+    </div>
+  </div>
+  <p style="font-size:.84rem;color:var(--muted);margin-bottom:20px;font-style:italic;">Summarizes all logged data for tax prep and Schedule C filing. Share with your accountant.</p>
+  <div class="report-grid">
+    <div class="report-card"><h4>EXPENSE SUMMARY</h4><div id="rep-expenses"></div></div>
+    <div class="report-card"><h4>DEDUCTIONS SUMMARY</h4><div id="rep-deductions"></div></div>
+  </div>
+  <div class="report-grid">
+    <div class="report-card"><h4>CONTRACTOR PAYMENTS (1099)</h4><div id="rep-contractors"></div></div>
+    <div class="report-card"><h4>HOURS &amp; JOBS</h4><div id="rep-hours"></div></div>
+  </div>
+  <div class="report-grid">
+    <div class="report-card"><h4>INVOICE SUMMARY</h4><div id="rep-invoices"></div></div>
+    <div class="report-card"><h4>JOB PROFITABILITY</h4><div id="rep-jobs"></div></div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app-body -->
+
+<!-- MODALS -->
+<div class="modal-overlay" id="client-modal"><div class="modal"><button class="modal-close" onclick="closeModal('client-modal')">×</button><h3>Add Client</h3>
+  <div class="frow"><div class="field"><label>Full Name *</label><input type="text" id="cl-name" placeholder="First Last"/></div><div class="field"><label>Phone *</label><input type="tel" id="cl-phone" placeholder="(386) 000-0000"/></div></div>
+  <div class="field"><label>Email</label><input type="email" id="cl-email" placeholder="client@email.com"/></div>
+  <div class="field"><label>Address</label><input type="text" id="cl-addr" placeholder="Street, City, FL"/></div>
+  <div class="field"><label>Notes</label><textarea id="cl-notes" placeholder="Property details, preferences, etc."></textarea></div>
+  <div class="modal-actions"><button class="btn-sm" onclick="addClient()">Add Client</button><button class="btn-sm ghost" onclick="closeModal('client-modal')">Cancel</button></div>
+</div></div>
+
+<div class="modal-overlay" id="job-modal"><div class="modal"><button class="modal-close" onclick="closeModal('job-modal')">×</button><h3>New Job</h3>
+  <div class="field"><label>Job Name *</label><input type="text" id="jb-name" placeholder="e.g. Johnson Kitchen Remodel"/></div>
+  <div class="frow"><div class="field"><label>Client *</label><select id="jb-client"><option value="">— Select Client —</option></select></div><div class="field"><label>Type</label><select id="jb-type"><option>Electrical</option><option>Plumbing</option><option>Carpentry</option><option>Remodeling</option><option>New Construction</option><option>Multi-Trade</option><option>Repair</option><option>Other</option></select></div></div>
+  <div class="frow"><div class="field"><label>Est. Value ($)</label><input type="number" id="jb-value" placeholder="0.00" step="0.01"/></div><div class="field"><label>Start Date</label><input type="date" id="jb-start"/></div></div>
+  <div class="field"><label>Description / Scope</label><textarea id="jb-desc" placeholder="Scope of work..."></textarea></div>
+  <div class="modal-actions"><button class="btn-sm" onclick="addJob()">Create Job</button><button class="btn-sm ghost" onclick="closeModal('job-modal')">Cancel</button></div>
+</div></div>
+
+<div class="modal-overlay" id="inv-modal"><div class="modal"><button class="modal-close" onclick="closeModal('inv-modal')">×</button><h3>New Invoice</h3>
+  <div class="frow"><div class="field"><label>Client *</label><select id="inv-client"><option value="">— Select —</option></select></div><div class="field"><label>Job</label><select id="inv-job"><option value="">— Select —</option></select></div></div>
+  <div class="frow"><div class="field"><label>Amount *</label><input type="number" id="inv-amt" placeholder="0.00" step="0.01"/></div><div class="field"><label>Due Date</label><input type="date" id="inv-due"/></div></div>
+  <div class="field"><label>Payment Method</label><select id="inv-pay"><option>Cash</option><option>Check</option><option>CashApp</option><option>Zelle</option><option>Digital Assets</option></select></div>
+  <div class="field"><label>Notes</label><textarea id="inv-notes" placeholder="Invoice notes..."></textarea></div>
+  <div class="modal-actions"><button class="btn-sm" onclick="addInvoice()">Create Invoice</button><button class="btn-sm ghost" onclick="closeModal('inv-modal')">Cancel</button></div>
+</div></div>
+
+<div class="modal-overlay" id="c-modal"><div class="modal"><button class="modal-close" onclick="closeModal('c-modal')">×</button><h3>Add Contractor</h3>
+  <div class="frow"><div class="field"><label>Full Name *</label><input type="text" id="c-name" placeholder="First Last"/></div><div class="field"><label>Phone</label><input type="tel" id="c-phone" placeholder="(386) 000-0000"/></div></div>
+  <div class="frow"><div class="field"><label>Email</label><input type="email" id="c-email" placeholder="contractor@email.com"/></div><div class="field"><label>Trade / Specialty</label><input type="text" id="c-trade" placeholder="Electrician, Plumber..."/></div></div>
+  <div class="frow"><div class="field"><label>Default Rate ($/hr)</label><input type="number" id="c-rate" placeholder="0.00" step="0.01"/></div><div class="field"><label>SSN Last 4 (1099)</label><input type="text" id="c-ssn" placeholder="XXXX" maxlength="4"/></div></div>
+  <div class="modal-actions"><button class="btn-sm" onclick="addContractor()">Add</button><button class="btn-sm ghost" onclick="closeModal('c-modal')">Cancel</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──
+const S = JSON.parse(localStorage.getItem('drakeV3')||'{}');
+if(!S.tasks) S.tasks=[
+  {id:1,desc:'Log today\'s mileage',cat:'daily',due:'',done:false,priority:'high'},
+  {id:2,desc:'Upload any paper receipts from this week',cat:'weekly',due:'',done:false,priority:'normal'},
+  {id:3,desc:'Check contractor 1099 thresholds',cat:'admin',due:'',done:false,priority:'high'},
+  {id:4,desc:'Send invoice follow-ups on unpaid balances',cat:'weekly',due:'',done:false,priority:'high'},
+  {id:5,desc:'Log hours for all active jobs',cat:'daily',due:'',done:false,priority:'normal'},
+];
+if(!S.clients) S.clients=[];
+if(!S.jobs) S.jobs=[];
+if(!S.invoices) S.invoices=[];
+if(!S.expenses) S.expenses=[];
+if(!S.mileage) S.mileage=[];
+if(!S.hours) S.hours=[];
+if(!S.contractors) S.contractors=[];
+if(!S.contractorPay) S.contractorPay=[];
+if(!S.changeOrders) S.changeOrders=[];
+let tid=Math.max(0,...S.tasks.map(t=>t.id))+1;
+const IRS=0.70;
+const todayStr=new Date().toISOString().split('T')[0];
+const save=()=>localStorage.setItem('drakeV3',JSON.stringify(S));
+
+// ── DATE DISPLAY ──
+const dn=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+document.getElementById('topDate').textContent=dn;
+document.getElementById('dashDate').textContent=dn;
+['exp-date','mi-date','hr-date','pay-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=todayStr;});
+
+// ── TOAST ──
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
+
+// ── TAB NAV ──
+function showTab(name){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  const nav=document.getElementById('nav-'+name);
+  if(nav) nav.classList.add('active');
+  refreshAll();
+}
+
+// ── MODALS ──
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// ── TASKS ──
+function addTask(){
+  const desc=document.getElementById('t-desc').value.trim();
+  if(!desc){toast('⚠ Enter task description');return;}
+  S.tasks.push({id:tid++,desc,cat:document.getElementById('t-cat').value,due:document.getElementById('t-due').value,done:false,priority:document.getElementById('t-pri').value});
+  save();document.getElementById('t-desc').value='';renderTasks();toast('✓ Task added');
+}
+function quickTask(){const i=document.getElementById('quick-task');if(!i.value.trim())return;S.tasks.push({id:tid++,desc:i.value.trim(),cat:'daily',due:'',done:false,priority:'normal'});i.value='';save();renderTasks();}
+function toggleTask(id){const t=S.tasks.find(t=>t.id===id);if(t){t.done=!t.done;save();renderTasks();}}
+function deleteTask(id){S.tasks=S.tasks.filter(t=>t.id!==id);save();renderTasks();}
+function filterTasks(cat,btn){document.querySelectorAll('#tab-tasks .fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTasksFull(cat);}
+function renderTasks(){
+  const open=S.tasks.filter(t=>!t.done).length;
+  document.getElementById('taskBadge').textContent=open;
+  document.getElementById('taskBadge2').textContent=open;
+  renderTasksDash();renderTasksFull('all');
+}
+function renderTasksDash(){
+  const el=document.getElementById('dash-tasks');
+  const tasks=S.tasks.filter(t=>!t.done).slice(0,5);
+  if(!tasks.length){el.innerHTML='<div style="padding:16px;text-align:center;color:var(--muted);font-size:.84rem">All tasks done ✓</div>';return;}
+  el.innerHTML=tasks.map(t=>`<div class="task-row"><div class="task-check ${t.done?'done':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</div><div class="task-text ${t.done?'done':''}">${t.desc}</div><div class="task-due">${t.due?new Date(t.due+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):''}</div></div>`).join('');
+}
+function renderTasksFull(catF){
+  const el=document.getElementById('task-list-full');
+  let tasks=catF&&catF!=='all'?S.tasks.filter(t=>t.cat===catF):S.tasks;
+  if(!tasks.length){el.innerHTML='<div class="empty-state" style="background:var(--card);border:1px solid var(--border)">No tasks in this category.</div>';return;}
+  el.innerHTML=[...tasks].sort((a,b)=>a.done-b.done).map(t=>`<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--card);border:1px solid var(--border);margin-bottom:3px;"><div class="task-check ${t.done?'done':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</div><div style="flex:1;"><div class="task-text ${t.done?'done':''}" style="font-size:.9rem">${t.desc}</div><div style="font-size:.7rem;color:var(--muted);font-family:'Courier Prime',monospace;margin-top:2px">${t.cat.toUpperCase()}${t.priority==='high'?' · <span style="color:var(--rust)">HIGH</span>':''}${t.due?' · Due '+new Date(t.due+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):''}</div></div><button class="btn-sm danger" onclick="deleteTask(${t.id})" style="font-size:.68rem;padding:3px 7px">×</button></div>`).join('');
+}
+
+// ── CLIENTS ──
+function addClient(){
+  const name=document.getElementById('cl-name').value.trim();
+  if(!name){toast('⚠ Client name required');return;}
+  S.clients.push({id:Date.now(),name,phone:document.getElementById('cl-phone').value,email:document.getElementById('cl-email').value,addr:document.getElementById('cl-addr').value,notes:document.getElementById('cl-notes').value});
+  save();renderClients();closeModal('client-modal');toast('✓ Client added');
+  ['cl-name','cl-phone','cl-email','cl-addr','cl-notes'].forEach(id=>document.getElementById(id).value='');
+}
+function deleteClient(id){S.clients=S.clients.filter(c=>c.id!==id);save();renderClients();}
+function renderClients(){
+  updateJobDropdowns();
+  const tb=document.getElementById('clients-tbody');
+  if(!S.clients.length){tb.innerHTML='<tr><td colspan="8" class="empty-state">No clients yet.</td></tr>';return;}
+  tb.innerHTML=S.clients.map(c=>{
+    const jobs=S.jobs.filter(j=>j.clientId===c.id).length;
+    const billed=S.invoices.filter(i=>i.clientId===c.id).reduce((s,i)=>s+i.amt,0);
+    const lastJob=S.jobs.filter(j=>j.clientId===c.id).sort((a,b)=>b.id-a.id)[0];
+    return `<tr><td style="font-weight:400;color:var(--cream)">${c.name}</td><td><a href="tel:${c.phone}" style="color:var(--warm);text-decoration:none">${c.phone||'—'}</a></td><td style="font-size:.8rem">${c.email||'—'}</td><td style="font-size:.8rem">${c.addr||'—'}</td><td>${jobs}</td><td style="color:#4fa86e">$${billed.toFixed(2)}</td><td style="font-size:.8rem">${lastJob?lastJob.name:'—'}</td><td><button class="btn-sm danger" onclick="deleteClient(${c.id})" style="font-size:.68rem;padding:3px 7px">×</button></td></tr>`;
+  }).join('');
+}
+
+// ── JOBS ──
+function addJob(){
+  const name=document.getElementById('jb-name').value.trim();
+  const clientId=parseInt(document.getElementById('jb-client').value);
+  if(!name||!clientId){toast('⚠ Job name and client required');return;}
+  S.jobs.push({id:Date.now(),name,clientId,type:document.getElementById('jb-type').value,value:parseFloat(document.getElementById('jb-value').value)||0,start:document.getElementById('jb-start').value,desc:document.getElementById('jb-desc').value,status:'active'});
+  save();renderJobs();closeModal('job-modal');toast('✓ Job created');
+  ['jb-name','jb-value','jb-start','jb-desc'].forEach(id=>document.getElementById(id).value='');
+}
+function updateJobStatus(id,status){const j=S.jobs.find(j=>j.id===id);if(j){j.status=status;save();renderJobs();}}
+function deleteJob(id){S.jobs=S.jobs.filter(j=>j.id!==id);save();renderJobs();}
+function filterJobs(f,btn){document.querySelectorAll('#tab-jobs .fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderJobs(f);}
+function addChangeOrder(){
+  const jobId=parseInt(document.getElementById('co-job').value);
+  const desc=document.getElementById('co-desc').value.trim();
+  const amt=parseFloat(document.getElementById('co-amt').value)||0;
+  if(!jobId||!desc){toast('⚠ Select job and enter description');return;}
+  S.changeOrders.push({id:Date.now(),jobId,desc,amt,date:todayStr});
+  const job=S.jobs.find(j=>j.id===jobId);
+  if(job){job.value=(job.value||0)+amt;}
+  save();renderJobs();toast('✓ Change order logged');
+  document.getElementById('co-desc').value='';document.getElementById('co-amt').value='';
+}
+function renderJobs(filter){
+  updateJobDropdowns();
+  renderDashJobs();
+  const tb=document.getElementById('jobs-tbody');
+  let jobs=filter&&filter!=='all'?S.jobs.filter(j=>j.status===filter):S.jobs;
+  if(!jobs.length){tb.innerHTML='<tr><td colspan="9" class="empty-state">No jobs logged.</td></tr>';return;}
+  const statusMap={active:'pill-active',pending:'pill-pending',complete:'pill-done'};
+  tb.innerHTML=jobs.map(j=>{
+    const client=S.clients.find(c=>c.id===j.clientId);
+    const jobExp=S.expenses.filter(e=>e.jobId===j.id).reduce((s,e)=>s+parseFloat(e.amt||0),0);
+    const jobLabor=S.hours.filter(h=>h.jobId===j.id).reduce((s,h)=>s+(h.hrs*h.rate),0);
+    const totalCost=jobExp+jobLabor;
+    const profit=j.value-totalCost;
+    const profitColor=profit>=0?'#4fa86e':'#e07060';
+    return `<tr>
+      <td style="font-weight:400;color:var(--cream)">${j.name}</td>
+      <td>${client?client.name:'—'}</td>
+      <td><span style="font-size:.8rem">${j.type||'—'}</span></td>
+      <td><span class="pill ${statusMap[j.status]||'pill-pending'}">${j.status}</span></td>
+      <td style="color:#4fa86e">$${(j.value||0).toFixed(2)}</td>
+      <td style="color:#e07060">$${totalCost.toFixed(2)}</td>
+      <td style="color:${profitColor};font-weight:400">$${profit.toFixed(2)}</td>
+      <td style="font-size:.8rem">${j.start||'—'}</td>
+      <td style="display:flex;gap:4px;flex-wrap:wrap;">
+        <select onchange="updateJobStatus(${j.id},this.value)" style="background:var(--lift);border:1px solid var(--border);color:var(--warm);padding:3px 6px;font-size:.72rem;outline:none;">
+          <option ${j.status==='active'?'selected':''} value="active">Active</option>
+          <option ${j.status==='pending'?'selected':''} value="pending">Pending</option>
+          <option ${j.status==='complete'?'selected':''} value="complete">Complete</option>
+        </select>
+        <button class="btn-sm danger" onclick="deleteJob(${j.id})" style="font-size:.66rem;padding:2px 6px">×</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function renderDashJobs(){
+  const el=document.getElementById('dash-jobs');
+  const jobs=S.jobs.filter(j=>j.status!=='complete').slice(0,5);
+  if(!jobs.length){el.innerHTML='<div style="padding:16px;text-align:center;color:var(--muted);font-size:.84rem">No active jobs.</div>';return;}
+  const statusMap={active:'pill-active',pending:'pill-pending',complete:'pill-done'};
+  el.innerHTML=jobs.map(j=>`<div class="task-row"><span class="pill ${statusMap[j.status]||'pill-pending'}" style="flex-shrink:0">${j.status}</span><span class="task-text">${j.name}</span><span class="task-due">$${(j.value||0).toFixed(0)}</span></div>`).join('');
+  document.getElementById('kpi-jobs').textContent=S.jobs.filter(j=>j.status==='active').length;
+}
+
+// ── UPDATE ALL DROPDOWNS ──
+function updateJobDropdowns(){
+  const clientSelects=['jb-client','inv-client'];
+  const jobSelects=['exp-job','hr-job','co-job','portal-job','r-job','pay-c'];
+  clientSelects.forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    const v=el.value;
+    el.innerHTML='<option value="">— Select Client —</option>'+S.clients.map(c=>`<option value="${c.id}" ${c.id==v?'selected':''}>${c.name}</option>`).join('');
+  });
+  const jobList='<option value="">— No Job —</option>'+S.jobs.map(j=>`<option value="${j.id}">${j.name}</option>`).join('');
+  ['exp-job','hr-job','co-job','portal-job','r-job','inv-job'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=jobList;});
+  const pEl=document.getElementById('pay-c');
+  if(pEl) pEl.innerHTML='<option value="">— Select Contractor —</option>'+S.contractors.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+// ── INVOICES ──
+function addInvoice(){
+  const clientId=parseInt(document.getElementById('inv-client').value);
+  const amt=parseFloat(document.getElementById('inv-amt').value);
+  if(!clientId||!amt){toast('⚠ Client and amount required');return;}
+  const num='INV-'+(S.invoices.length+1).toString().padStart(4,'0');
+  S.invoices.push({id:Date.now(),num,clientId,jobId:parseInt(document.getElementById('inv-job').value)||null,amt,paid:0,status:'unpaid',due:document.getElementById('inv-due').value,payMethod:document.getElementById('inv-pay').value,notes:document.getElementById('inv-notes').value,date:todayStr});
+  save();renderInvoices();closeModal('inv-modal');toast('✓ Invoice created');
+}
+function markInvPaid(id,partial){
+  const inv=S.invoices.find(i=>i.id===id);
+  if(!inv)return;
+  if(partial){const p=parseFloat(prompt('Enter payment amount:','0'));if(!isNaN(p)){inv.paid=Math.min(inv.amt,inv.paid+p);inv.status=inv.paid>=inv.amt?'paid':'partial';save();renderInvoices();toast('✓ Payment recorded');}}
+  else{inv.paid=inv.amt;inv.status='paid';save();renderInvoices();toast('✓ Marked paid');}
+}
+function sendGoogleReview(clientId){
+  const c=S.clients.find(c=>c.id===clientId);
+  if(!c||!c.phone){toast('⚠ Add client phone number first');return;}
+  const msg=`Hi ${c.name.split(' ')[0]}, thank you for choosing Handyman & Trade Services! If you were happy with the work, we'd love a quick Google review — it really helps: https://g.page/r/YOURPLACEID/review — David Drake (386) 365-9221`;
+  window.open(`sms:${c.phone}?body=${encodeURIComponent(msg)}`);
+  toast('✓ Opening SMS to client');
+}
+function filterInv(f,btn){document.querySelectorAll('#tab-invoices .fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderInvoices(f);}
+function renderInvoices(filter){
+  const tb=document.getElementById('inv-tbody');
+  let invs=filter&&filter!=='all'?S.invoices.filter(i=>i.status===filter):S.invoices;
+  const totalUnpaid=S.invoices.filter(i=>i.status!=='paid').reduce((s,i)=>s+(i.amt-i.paid),0);
+  const unpaidCount=S.invoices.filter(i=>i.status!=='paid').length;
+  document.getElementById('kpi-invoices').textContent='$'+totalUnpaid.toFixed(0);
+  document.getElementById('kpi-inv-sub').textContent=unpaidCount+' unpaid';
+  if(!invs.length){tb.innerHTML='<tr><td colspan="10" class="empty-state">No invoices yet.</td></tr>';return;}
+  const pillMap={paid:'pill-paid',partial:'pill-partial',unpaid:'pill-unpaid',overdue:'pill-overdue'};
+  tb.innerHTML=invs.map(i=>{
+    const client=S.clients.find(c=>c.id===i.clientId);
+    const job=S.jobs.find(j=>j.id===i.jobId);
+    const bal=i.amt-i.paid;
+    if(i.due&&i.due<todayStr&&i.status!=='paid') i.status='overdue';
+    return `<tr>
+      <td style="font-family:'Courier Prime',monospace;font-size:.8rem">${i.num}</td>
+      <td>${client?client.name:'—'}</td>
+      <td style="font-size:.8rem">${job?job.name:'—'}</td>
+      <td>$${i.amt.toFixed(2)}</td>
+      <td style="color:#4fa86e">$${i.paid.toFixed(2)}</td>
+      <td style="color:${bal>0?'#e07060':'#4fa86e'}">$${bal.toFixed(2)}</td>
+      <td><span class="pill ${pillMap[i.status]||'pill-unpaid'}">${i.status}</span></td>
+      <td style="font-size:.8rem">${i.due||'—'}</td>
+      <td style="font-size:.8rem">${i.payMethod||'—'}</td>
+      <td style="display:flex;gap:4px;">
+        ${bal>0?`<button class="btn-sm green" onclick="markInvPaid(${i.id},false)" style="font-size:.68rem;padding:3px 7px">Paid</button><button class="btn-sm ghost" onclick="markInvPaid(${i.id},true)" style="font-size:.68rem;padding:3px 7px">Partial</button>`:''}
+        ${client?`<button class="btn-sm ghost" onclick="sendGoogleReview(${client.id})" style="font-size:.68rem;padding:3px 7px" title="Send Google Review Request">⭐</button>`:''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── CLIENT PORTAL ──
+function genPortalLink(){
+  const jobId=document.getElementById('portal-job').value;
+  if(!jobId){toast('⚠ Select a job first');return;}
+  const job=S.jobs.find(j=>j.id==jobId);
+  const client=job?S.clients.find(c=>c.id===job.clientId):null;
+  const token=btoa(jobId+'-'+Date.now()).replace(/=/g,'');
+  const link=`https://handymanandtradeservices.com/portal/${token}`;
+  const el=document.getElementById('portal-links');
+  el.innerHTML=`<div class="portal-card"><div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;color:var(--amber);margin-bottom:8px">PORTAL LINK — ${job?job.name:''} ${client?'('+client.name+')':''}</div>
+    <code class="portal-link">${link}</code>
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:10px;">Share this link with your client via text or email. They can view job status, photos, invoices, and documents — no login needed.</p>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-sm" onclick="navigator.clipboard.writeText('${link}').then(()=>toast('✓ Link copied!'))">Copy Link</button>
+      <button class="btn-sm ghost" onclick="window.open('sms:?body=Hi%2C%20here%20is%20your%20project%20portal%3A%20${encodeURIComponent(link)}')">Text to Client</button>
+      <button class="btn-sm ghost" onclick="window.open('mailto:?subject=Your%20Project%20Portal&body=Hi%2C%20here%20is%20your%20project%20portal%3A%20${encodeURIComponent(link)}')">Email to Client</button>
+    </div>
+  </div>`+el.innerHTML;
+  toast('✓ Portal link generated!');
+}
+
+// ── EXPENSES ──
+const catClass={'Fuel / Gas':'cat-fuel','Tools':'cat-tools','Building Supplies':'cat-supplies','Labor / Subs':'cat-labor','Equipment':'cat-equip','Vehicle':'cat-fuel','Insurance':'cat-other','Office / Admin':'cat-other','Permits / Fees':'cat-other','Other':'cat-other'};
+function addExpense(data){
+  const d=data||{date:document.getElementById('exp-date').value,amt:parseFloat(document.getElementById('exp-amt').value),cat:document.getElementById('exp-cat').value,vendor:document.getElementById('exp-vendor').value.trim(),jobId:parseInt(document.getElementById('exp-job').value)||null,desc:document.getElementById('exp-desc').value.trim(),hasReceipt:false};
+  if(!d.date||!d.amt){toast('⚠ Date and amount required');return;}
+  S.expenses.unshift({...d,id:Date.now()});save();renderExpenses();renderDash();toast('✓ $'+parseFloat(d.amt).toFixed(2)+' logged');
+  if(!data) clearExpForm();
+}
+function clearExpForm(){['exp-amt','exp-vendor','exp-desc'].forEach(id=>document.getElementById(id).value='');document.getElementById('exp-date').value=todayStr;}
+function deleteExpense(id){S.expenses=S.expenses.filter(e=>e.id!==id);save();renderExpenses();renderDash();}
+function filterExp(cat,btn){document.querySelectorAll('#exp-filters .fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderExpenses(cat==='all'?null:cat);}
+function renderExpenses(filter){
+  const tb=document.getElementById('exp-tbody');
+  let exps=filter?S.expenses.filter(e=>e.cat===filter):S.expenses;
+  if(!exps.length){tb.innerHTML='<tr><td colspan="8" class="empty-state">No expenses logged yet.</td></tr>';return;}
+  tb.innerHTML=exps.map(e=>`<tr><td>${e.date?new Date(e.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):''}</td><td><span class="pill ${catClass[e.cat]||'cat-other'}">${e.cat}</span></td><td>${e.vendor||'—'}</td><td style="font-size:.8rem">${e.jobId?S.jobs.find(j=>j.id===e.jobId)?.name||'—':'—'}</td><td style="font-size:.8rem;color:var(--muted)">${e.desc||'—'}</td><td style="color:#e07060">-$${parseFloat(e.amt).toFixed(2)}</td><td>${e.hasReceipt?'<span style="color:#4fa86e;font-size:.8rem">✓</span>':'—'}</td><td><button class="btn-sm danger" onclick="deleteExpense(${e.id})" style="font-size:.66rem;padding:2px 6px">×</button></td></tr>`).join('');
+}
+
+// ── RECEIPT AI ──
+async function processReceipt(input){
+  if(!input.files.length)return;
+  const file=input.files[0];
+  document.getElementById('rcpt-processing').classList.add('vis');
+  document.getElementById('rcpt-result').style.display='none';
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    const base64=e.target.result.split(',')[1];
+    const mediaType=file.type||'image/jpeg';
+    try{
+      const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},{type:'text',text:'You are a bookkeeping assistant for a trade contractor. Analyze this receipt and return ONLY a JSON object, no markdown:\n{"vendor":"","amount":0.00,"date":"YYYY-MM-DD","category":"Fuel / Gas|Tools|Building Supplies|Labor / Subs|Equipment|Vehicle|Insurance|Office / Admin|Permits / Fees|Other","description":"","confidence":"high|medium|low"}\nGas stations=Fuel/Gas. Hardware stores=Building Supplies or Tools. Auto=Vehicle.'}]}]})});
+      const data=await resp.json();
+      const text=data.content.map(c=>c.text||'').join('');
+      const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
+      document.getElementById('rcpt-processing').classList.remove('vis');
+      document.getElementById('rcpt-result').style.display='block';
+      document.getElementById('r-date').value=parsed.date||todayStr;
+      document.getElementById('r-amt').value=parsed.amount||'';
+      document.getElementById('r-cat').value=parsed.category||'Other';
+      document.getElementById('r-vendor').value=parsed.vendor||'';
+      document.getElementById('r-desc').value=parsed.description||'';
+      updateJobDropdowns();
+      toast('✓ Receipt read! Review and confirm.');
+    }catch{
+      document.getElementById('rcpt-processing').classList.remove('vis');
+      document.getElementById('rcpt-result').style.display='block';
+      document.getElementById('r-date').value=todayStr;
+      toast('⚠ Manual entry needed');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+function confirmReceipt(){addExpense({date:document.getElementById('r-date').value,amt:parseFloat(document.getElementById('r-amt').value)||0,cat:document.getElementById('r-cat').value,vendor:document.getElementById('r-vendor').value,jobId:parseInt(document.getElementById('r-job').value)||null,desc:document.getElementById('r-desc').value,hasReceipt:true});document.getElementById('rcpt-result').style.display='none';document.getElementById('rcpt-upload').value='';toast('✓ Receipt logged!');}
+function cancelReceipt(){document.getElementById('rcpt-result').style.display='none';document.getElementById('rcpt-upload').value='';}
+
+// ── MILEAGE ──
+function addMileage(data){
+  const d=data||{date:document.getElementById('mi-date').value,miles:parseFloat(document.getElementById('mi-miles').value),from:document.getElementById('mi-from').value.trim(),to:document.getElementById('mi-to').value.trim(),purpose:document.getElementById('mi-purpose').value.trim(),source:'manual'};
+  if(!d.date||!d.miles){toast('⚠ Date and miles required');return;}
+  S.mileage.unshift({...d,id:Date.now()});save();renderMileage();renderDash();
+  if(!data){['mi-miles','mi-from','mi-to','mi-purpose'].forEach(id=>document.getElementById(id).value='');toast('✓ '+d.miles+' miles logged');}
+}
+function deleteMileage(id){S.mileage=S.mileage.filter(m=>m.id!==id);save();renderMileage();renderDash();}
+function importMileIQ(input){
+  if(!input.files.length)return;
+  const file=input.files[0];
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const text=e.target.result;
+    const lines=text.split('\n').slice(1);// skip header
+    let count=0;
+    lines.forEach(line=>{
+      const cols=line.split(',').map(c=>c.replace(/"/g,'').trim());
+      if(cols.length<4)return;
+      // MileIQ CSV columns: Date, Activity, Miles, Total Duration, Vehicle, Locations, Purpose, Notes
+      const date=cols[0];const miles=parseFloat(cols[2]);
+      if(!date||!miles)return;
+      const purpose=cols[6]||cols[7]||'MileIQ Import';
+      S.mileage.unshift({id:Date.now()+count,date,miles,from:'',to:'',purpose,source:'MileIQ'});
+      count++;
+    });
+    save();renderMileage();renderDash();
+    const statusEl=document.getElementById('mileiq-status');
+    statusEl.style.display='block';statusEl.textContent=`✓ Imported ${count} drives from MileIQ`;
+    toast('✓ '+count+' MileIQ drives imported!');
+  };
+  reader.readAsText(file);
+}
+function renderMileage(){
+  const tb=document.getElementById('mile-tbody');
+  const total=S.mileage.reduce((s,m)=>s+m.miles,0);
+  document.getElementById('mile-total-disp').textContent=total.toFixed(1)+' mi';
+  document.getElementById('mile-deduct-disp').textContent='$'+(total*IRS).toFixed(2);
+  document.getElementById('kpi-miles').textContent=total.toFixed(0);
+  document.getElementById('kpi-mile-sub').textContent='$'+(total*IRS).toFixed(0)+' deduction';
+  if(!S.mileage.length){tb.innerHTML='<tr><td colspan="8" class="empty-state">No mileage logged.</td></tr>';return;}
+  tb.innerHTML=S.mileage.map(m=>`<tr><td>${m.date?new Date(m.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):''}</td><td><strong style="color:var(--cream)">${m.miles.toFixed(1)}</strong></td><td style="font-size:.8rem">${m.from||'—'}</td><td style="font-size:.8rem">${m.to||'—'}</td><td>${m.purpose||'—'}</td><td style="color:#4fa86e">$${(m.miles*IRS).toFixed(2)}</td><td><span class="pill ${m.source==='MileIQ'?'cat-tools':'cat-other'}" style="font-size:.58rem">${m.source||'manual'}</span></td><td><button class="btn-sm danger" onclick="deleteMileage(${m.id})" style="font-size:.66rem;padding:2px 6px">×</button></td></tr>`).join('');
+}
+
+// ── HOURS ──
+function addHours(){
+  const date=document.getElementById('hr-date').value;
+  const hrs=parseFloat(document.getElementById('hr-hrs').value);
+  const jobId=parseInt(document.getElementById('hr-job').value)||null;
+  if(!date||!hrs){toast('⚠ Date and hours required');return;}
+  S.hours.unshift({id:Date.now(),date,hrs,worker:document.getElementById('hr-worker').value,jobId,desc:document.getElementById('hr-desc').value.trim(),rate:parseFloat(document.getElementById('hr-rate').value)||0});
+  save();renderHours();['hr-hrs','hr-desc','hr-rate'].forEach(id=>document.getElementById(id).value='');toast('✓ '+hrs+' hours logged');
+}
+function deleteHours(id){S.hours=S.hours.filter(h=>h.id!==id);save();renderHours();}
+function renderHours(){
+  const tb=document.getElementById('hr-tbody');
+  const total=S.hours.reduce((s,h)=>s+h.hrs,0);
+  const now=new Date();const wd=now.getDay();const wstart=new Date(now);wstart.setDate(now.getDate()-wd+1);
+  const week=S.hours.filter(h=>new Date(h.date)>=wstart).reduce((s,h)=>s+h.hrs,0);
+  const uniqueJobs=new Set(S.hours.map(h=>h.jobId).filter(Boolean)).size;
+  document.getElementById('hr-ytd').textContent=total.toFixed(1);
+  document.getElementById('hr-week').textContent=week.toFixed(1);
+  document.getElementById('hr-jobs').textContent=uniqueJobs;
+  if(!S.hours.length){tb.innerHTML='<tr><td colspan="8" class="empty-state">No hours logged.</td></tr>';return;}
+  tb.innerHTML=S.hours.map(h=>{const job=h.jobId?S.jobs.find(j=>j.id===h.jobId):null;return `<tr><td>${h.date?new Date(h.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):''}</td><td>${h.worker}</td><td style="font-size:.8rem">${job?job.name:'—'}</td><td><strong style="color:var(--cream)">${h.hrs}</strong></td><td>${h.rate?'$'+h.rate.toFixed(2):'—'}</td><td style="color:#4fa86e">${h.rate?'$'+(h.hrs*h.rate).toFixed(2):'—'}</td><td style="font-size:.8rem;color:var(--muted)">${h.desc||'—'}</td><td><button class="btn-sm danger" onclick="deleteHours(${h.id})" style="font-size:.66rem;padding:2px 6px">×</button></td></tr>`;}).join('');
+}
+
+// ── MATERIAL COST AI ──
+const aiHistory=[];
+async function sendAI(prompt){
+  const input=document.getElementById('ai-input');
+  const msg=(prompt||input.value).trim();
+  if(!msg)return;
+  if(!prompt) input.value='';
+  aiHistory.push({role:'user',content:msg});
+  const msgs=document.getElementById('ai-msgs');
+  msgs.innerHTML+=`<div class="ai-msg user"><div class="ai-label">You</div>${msg}</div>`;
+  msgs.scrollTop=msgs.scrollHeight;
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'You are a material cost analyst for a small trade contractor in North Florida (Suwannee County area). Help find cost savings on construction materials. Include: price ranges, bulk buying tips, cheaper alternatives, best local vendors (Home Depot, Lowe\'s, ABC Supply, 84 Lumber, local suppliers), waste reduction, and when to use contractor discounts. Be specific and practical. Use dollar amounts where helpful.',messages:aiHistory})});
+    const data=await resp.json();
+    const reply=data.content.map(c=>c.text||'').join('');
+    aiHistory.push({role:'assistant',content:reply});
+    msgs.innerHTML+=`<div class="ai-msg ai"><div class="ai-label">🧱 Material Cost AI</div>${reply.replace(/\n/g,'<br>')}</div>`;
+    msgs.scrollTop=msgs.scrollHeight;
+  }catch{
+    msgs.innerHTML+=`<div class="ai-msg ai"><div class="ai-label">🧱 Material Cost AI</div>Unable to connect to AI. Check your connection and try again.</div>`;
+  }
+}
+
+// ── CONTRACTORS ──
+function addContractor(){
+  const name=document.getElementById('c-name').value.trim();
+  if(!name){toast('⚠ Name required');return;}
+  S.contractors.push({id:Date.now(),name,phone:document.getElementById('c-phone').value,email:document.getElementById('c-email').value,trade:document.getElementById('c-trade').value,rate:parseFloat(document.getElementById('c-rate').value)||0,ssn:document.getElementById('c-ssn').value});
+  save();renderContractors();closeModal('c-modal');toast('✓ Contractor added');
+  ['c-name','c-phone','c-email','c-trade','c-rate','c-ssn'].forEach(id=>document.getElementById(id).value='');
+}
+function logPay(){
+  const cid=parseInt(document.getElementById('pay-c').value);
+  const amt=parseFloat(document.getElementById('pay-amt').value);
+  const date=document.getElementById('pay-date').value;
+  if(!cid||!amt||!date){toast('⚠ Contractor, date and amount required');return;}
+  S.contractorPay.unshift({id:Date.now(),cid,amt,date,desc:document.getElementById('pay-desc').value.trim()});
+  save();renderContractors();document.getElementById('pay-amt').value='';document.getElementById('pay-desc').value='';toast('✓ Payment logged');
+}
+function deleteContractorPay(id){S.contractorPay=S.contractorPay.filter(p=>p.id!==id);save();renderContractors();}
+function renderContractors(){
+  updateJobDropdowns();
+  const list=document.getElementById('contractors-list');
+  const kpi=document.getElementById('kpi-jobs');
+  if(!S.contractors.length){list.innerHTML='<div class="empty-state" style="background:var(--card);border:1px solid var(--border)">No contractors added.</div>';return;}
+  list.innerHTML=S.contractors.map(c=>{
+    const pays=S.contractorPay.filter(p=>p.cid===c.id);
+    const total=pays.reduce((s,p)=>s+p.amt,0);
+    const needs1099=total>=600;
+    return `<div class="contractor-card"><div class="c-avatar">${c.name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div><div class="c-info"><div class="c-name">${c.name}</div><div class="c-meta">${c.trade||'General Trade'}${c.phone?' · '+c.phone:''}${c.email?' · '+c.email:''}</div></div><div class="c-stats"><div class="c-stat"><div class="n">${pays.length}</div><div class="l">Payments</div></div><div class="c-stat"><div class="n">$${total.toFixed(0)}</div><div class="l">YTD Paid</div></div><div class="${needs1099?'warn-badge':'ok-badge'}">${needs1099?'⚠ 1099 REQUIRED':'Under $600'}</div></div></div>`;
+  }).join('');
+  const tb=document.getElementById('pay-tbody');
+  if(!S.contractorPay.length){tb.innerHTML='<tr><td colspan="5" class="empty-state">No payments logged.</td></tr>';return;}
+  tb.innerHTML=S.contractorPay.map(p=>{const c=S.contractors.find(c=>c.id===p.cid);return `<tr><td>${p.date?new Date(p.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):''}</td><td>${c?c.name:'Unknown'}</td><td style="color:#e07060">$${p.amt.toFixed(2)}</td><td style="font-size:.8rem">${p.desc||'—'}</td><td><button class="btn-sm danger" onclick="deleteContractorPay(${p.id})" style="font-size:.66rem;padding:2px 6px">×</button></td></tr>`;}).join('');
+}
+
+// ── DASHBOARD ──
+function renderDash(){
+  const totalExp=S.expenses.reduce((s,e)=>s+parseFloat(e.amt||0),0);
+  document.getElementById('kpi-exp').textContent='$'+totalExp.toFixed(0);
+  // Category breakdown
+  const cats={};
+  S.expenses.forEach(e=>{cats[e.cat]=(cats[e.cat]||0)+parseFloat(e.amt||0);});
+  const el=document.getElementById('dash-cats');
+  if(!Object.keys(cats).length){el.innerHTML='<span style="color:var(--muted);font-size:.84rem">No expenses yet.</span>';return;}
+  el.innerHTML=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>`<div style="background:var(--lift);border:1px solid var(--border);padding:12px 16px;"><span class="pill ${catClass[cat]||'cat-other'}" style="display:block;margin-bottom:5px">${cat}</span><div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--cream)">$${amt.toFixed(2)}</div></div>`).join('');
+}
+
+// ── REPORTS ──
+function renderReports(){
+  const totalExp=S.expenses.reduce((s,e)=>s+parseFloat(e.amt||0),0);
+  const totalMiles=S.mileage.reduce((s,m)=>s+m.miles,0);
+  const mileDeduct=totalMiles*IRS;
+  const cats={};S.expenses.forEach(e=>{cats[e.cat]=(cats[e.cat]||0)+parseFloat(e.amt||0);});
+  const rExp=document.getElementById('rep-expenses');
+  if(rExp) rExp.innerHTML=(Object.entries(cats).map(([cat,amt])=>`<div class="rep-row"><span class="rl">${cat}</span><span class="rv">$${amt.toFixed(2)}</span></div>`).join('')||'<div class="rep-row"><span class="rl">None</span><span class="rv">$0.00</span></div>')+`<div class="rep-row total"><span>TOTAL</span><span>$${totalExp.toFixed(2)}</span></div>`;
+  const rDed=document.getElementById('rep-deductions');
+  if(rDed) rDed.innerHTML=`<div class="rep-row"><span class="rl">Mileage (${totalMiles.toFixed(0)} mi × $${IRS})</span><span class="rv">$${mileDeduct.toFixed(2)}</span></div><div class="rep-row"><span class="rl">Business Expenses</span><span class="rv">$${totalExp.toFixed(2)}</span></div><div class="rep-row total"><span>TOTAL DEDUCTIONS</span><span>$${(mileDeduct+totalExp).toFixed(2)}</span></div>`;
+  const rCon=document.getElementById('rep-contractors');
+  if(rCon){const totPay=S.contractorPay.reduce((s,p)=>s+p.amt,0);rCon.innerHTML=(S.contractors.map(c=>{const t=S.contractorPay.filter(p=>p.cid===c.id).reduce((s,p)=>s+p.amt,0);return `<div class="rep-row"><span class="rl">${c.name} ${t>=600?'⚠':''}</span><span class="rv">$${t.toFixed(2)}</span></div>`;}).join('')||'<div class="rep-row"><span class="rl">None</span><span class="rv">—</span></div>')+`<div class="rep-row total"><span>TOTAL PAID</span><span>$${totPay.toFixed(2)}</span></div>`;}
+  const rHrs=document.getElementById('rep-hours');
+  if(rHrs){const totalH=S.hours.reduce((s,h)=>s+h.hrs,0);const workers=[...new Set(S.hours.map(h=>h.worker))];rHrs.innerHTML=(workers.map(w=>{const wh=S.hours.filter(h=>h.worker===w).reduce((s,h)=>s+h.hrs,0);return `<div class="rep-row"><span class="rl">${w}</span><span class="rv">${wh.toFixed(1)} hrs</span></div>`;}).join('')||'<div class="rep-row"><span class="rl">None</span><span class="rv">—</span></div>')+`<div class="rep-row total"><span>TOTAL</span><span>${totalH.toFixed(1)} hrs</span></div>`;}
+  const rInv=document.getElementById('rep-invoices');
+  if(rInv){const totInv=S.invoices.reduce((s,i)=>s+i.amt,0);const totPaid=S.invoices.reduce((s,i)=>s+i.paid,0);rInv.innerHTML=`<div class="rep-row"><span class="rl">Total Invoiced</span><span class="rv">$${totInv.toFixed(2)}</span></div><div class="rep-row"><span class="rl">Total Collected</span><span class="rv" style="color:#4fa86e">$${totPaid.toFixed(2)}</span></div><div class="rep-row total"><span>OUTSTANDING</span><span style="color:#e07060">$${(totInv-totPaid).toFixed(2)}</span></div>`;}
+  const rJobs=document.getElementById('rep-jobs');
+  if(rJobs){rJobs.innerHTML=(S.jobs.slice(0,8).map(j=>{const jobExp=S.expenses.filter(e=>e.jobId===j.id).reduce((s,e)=>s+parseFloat(e.amt||0),0);const jobL=S.hours.filter(h=>h.jobId===j.id).reduce((s,h)=>s+(h.hrs*h.rate),0);const profit=j.value-(jobExp+jobL);return `<div class="rep-row"><span class="rl" style="font-size:.8rem">${j.name}</span><span class="rv" style="color:${profit>=0?'#4fa86e':'#e07060'}">$${profit.toFixed(0)}</span></div>`;}).join(''))||'<div class="rep-row"><span class="rl">No jobs</span><span class="rv">—</span></div>';}
+}
+
+// ── EXPORT CSV ──
+function exportCSV(){
+  let csv='EXPENSES\nDate,Category,Vendor,Job,Description,Amount\n';
+  S.expenses.forEach(e=>{csv+=`${e.date},${e.cat},"${e.vendor||''}","${S.jobs.find(j=>j.id===e.jobId)?.name||''}","${e.desc||''}",${parseFloat(e.amt||0).toFixed(2)}\n`;});
+  csv+='\nMILEAGE\nDate,Miles,From,To,Purpose,Deduction,Source\n';
+  S.mileage.forEach(m=>{csv+=`${m.date},${m.miles},"${m.from||''}","${m.to||''}","${m.purpose||''}",${(m.miles*IRS).toFixed(2)},${m.source||'manual'}\n`;});
+  csv+='\nINVOICES\nInvoice#,Client,Amount,Paid,Status,DueDate\n';
+  S.invoices.forEach(i=>{const c=S.clients.find(cl=>cl.id===i.clientId);csv+=`${i.num},"${c?c.name:''}",${i.amt.toFixed(2)},${i.paid.toFixed(2)},${i.status},${i.due||''}\n`;});
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Drake_Business_'+new Date().getFullYear()+'.csv';a.click();
+  toast('✓ CSV exported!');
+}
+
+// ── REFRESH ALL ──
+function refreshAll(){
+  renderTasks();renderClients();renderJobs();renderInvoices();renderExpenses();
+  renderMileage();renderHours();renderContractors();renderDash();renderReports();updateJobDropdowns();
+}
+refreshAll();
+</script>
+</body>
+</html>
