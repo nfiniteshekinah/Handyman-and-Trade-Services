@@ -735,6 +735,7 @@ body{background:var(--bg);color:var(--cream);font-family:'Barlow',sans-serif;fon
 <!-- EXPENSES -->
 <div class="tab-panel" id="tab-expenses">
   <div class="sec-header"><h2>EXPENSES</h2>
+<div style="display:flex;gap:0;margin-bottom:16px;border-radius:6px;overflow:hidden;border:1px solid var(--borderl)"><button id="exp-type-toggle" data-mode="job" onclick="setExpType('job')" style="flex:1;padding:10px 6px;font-size:.78rem;font-weight:700;border:none;cursor:pointer;background:var(--amber);color:#1a1917;letter-spacing:.05em">🏗️ JOB EXPENSE</button><button onclick="setExpType('biz')" style="flex:1;padding:10px 6px;font-size:.78rem;font-weight:700;border:none;cursor:pointer;background:var(--lift);color:var(--muted);letter-spacing:.05em">🏢 BUSINESS EXPENSE</button></div>
     <div class="filter-bar" id="exp-filters">
       <button class="fbtn active" onclick="filterExp('all',this)">All</button>
       <button class="fbtn" onclick="filterExp('Fuel / Gas',this)">Fuel</button>
@@ -2851,6 +2852,11 @@ function setExpType(t){
   if(jobSel)jobSel.style.display=t==='job'?'block':'none';
   window._expType=t;
 }
+
+
+// Aliases for job detail functions
+function toggleJobDetail(id){if(typeof openJobDetail==='function')openJobDetail(id);}
+function addPhotosToJob(id){if(typeof jdpAddPhotos==='function')jdpAddPhotos(id);}
 
 </script>
 
