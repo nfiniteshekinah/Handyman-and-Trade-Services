@@ -222,6 +222,46 @@ body{background:var(--bg);color:var(--cream);font-family:'Barlow',sans-serif;fon
   .frow,.frow.tri,.frow.quad{grid-template-columns:1fr;}
   .contractor-card{flex-direction:column;align-items:flex-start;}
 }
+
+/* PROJECT HUB */
+#tab-hub{padding:0;display:flex;flex-direction:column;height:calc(100vh - 56px)}
+.hub-top{display:flex;align-items:center;gap:12px;padding:14px 22px 12px;border-bottom:1px solid #222;flex-shrink:0}
+.hub-top h2{font-size:.95rem;letter-spacing:.12em;color:#f5a623;margin:0;font-weight:700;white-space:nowrap}
+.hub-si{flex:1}.hub-si input{width:100%;background:#1a1a1a;border:1px solid #333;color:#e0e0e0;padding:7px 13px;border-radius:5px;font-size:.83rem;outline:none;box-sizing:border-box}
+.hub-si input:focus{border-color:#f5a623}
+.hub-panels{display:grid;grid-template-columns:230px 230px 1fr;flex:1;overflow:hidden;min-height:0}
+.hub-col{border-right:1px solid #1a1a1a;display:flex;flex-direction:column;overflow:hidden}
+.hub-col-h{padding:9px 13px;background:#131313;border-bottom:1px solid #1c1c1c;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;font-size:.65rem;letter-spacing:.1em;color:#555;font-weight:700}
+.hub-col-h b{color:#f5a623;font-size:.72rem}
+.hub-col-b{flex:1;overflow-y:auto;padding:5px}
+.hcc,.hjc{padding:10px 12px;border-radius:5px;cursor:pointer;margin-bottom:3px;border:1px solid transparent}
+.hcc:hover,.hjc:hover{background:#1c1c1c;border-color:#2a2a2a}
+.hcc.hs,.hjc.hs{background:#1d1400;border-color:#f5a623}
+.hn{font-size:.85rem;color:#ddd;font-weight:600;margin-bottom:2px}.hm{font-size:.69rem;color:#555}
+.hba{background:#f5a623;color:#000;font-size:.58rem;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:4px}
+.hbd{background:#1a3a1a;color:#4caf50;font-size:.58rem;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:4px}
+.hep{padding:24px 10px;text-align:center;color:#333;font-size:.78rem;line-height:1.7}
+.hub-dp{background:#0e0e0e;overflow-y:auto}
+.hub-di{padding:18px 20px}
+.hdt{font-size:1rem;font-weight:700;color:#eee;margin-bottom:3px}
+.hds-badge{display:inline-block;font-size:.6rem;font-weight:700;letter-spacing:.1em;padding:2px 9px;border-radius:3px;margin-bottom:9px}
+.hdc{font-size:.78rem;color:#555;margin-bottom:11px}
+.hgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:13px}
+.hgrid.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+.hst{background:#171717;border:1px solid #202020;border-radius:5px;padding:8px 10px}
+.hsl{font-size:.58rem;letter-spacing:.08em;color:#3a3a3a;margin-bottom:3px}
+.hsv{font-size:.87rem;font-weight:700;color:#f5a623}
+.hqas{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.hqa{background:#181818;border:1px solid #232323;color:#aaa;font-size:.74rem;padding:6px 12px;border-radius:4px;cursor:pointer}
+.hqa:hover{background:#f5a623;color:#000;border-color:#f5a623;font-weight:700}
+.hhdr{font-size:.6rem;letter-spacing:.1em;color:#3a3a3a;font-weight:700;border-bottom:1px solid #181818;padding-bottom:5px;margin:13px 0 6px}
+.hli{background:#141414;border:1px solid #1c1c1c;border-radius:4px;padding:8px 11px;margin-bottom:4px}
+.hln{font-size:.78rem;color:#bbb;margin-bottom:2px}.hlm{font-size:.68rem}
+.hal{color:#f5a623;font-size:.7rem;cursor:pointer;background:none;border:none;padding:0}
+.hnd{color:#333;font-size:.74rem;padding:3px 0}
+.hnb{background:#f5a623;color:#000;font-weight:700;font-size:.76rem;padding:6px 15px;border-radius:4px;border:none;cursor:pointer}
+.hnb:hover{background:#ffcc55}
+.hdesc{background:#151515;border-left:3px solid #2a2a2a;padding:8px 12px;border-radius:0 4px 4px 0;font-size:.78rem;color:#555;margin-bottom:11px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -248,6 +288,7 @@ body{background:var(--bg);color:var(--cream);font-family:'Barlow',sans-serif;fon
     <div class="nav-item" onclick="showTab('leads')" id="nav-leads"><span class="ic">📥</span><span>Quote Leads</span><span class="nb green" id="leadBadge">0</span></div>
     <div class="nav-item" onclick="showTab('clients')" id="nav-clients"><span class="ic">👥</span><span>Clients / CRM</span></div>
     <div class="nav-item" onclick="showTab('jobs')" id="nav-jobs"><span class="ic">🏗️</span><span>Jobs</span></div>
+    <div class="nav-item" onclick="showTab('hub')" id="nav-hub"><span class="nav-icon">&#128193;</span><span class="nav-label">Project Hub</span></div>
     <div class="nav-item" onclick="showTab('analyzer')" id="nav-analyzer"><span class="ic">💡</span><span>Job Analyzer</span></div>
     <div class="nav-item" onclick="showTab('contracts')" id="nav-contracts"><span class="ic">📝</span><span>Contracts</span></div>
     <div class="nav-item" onclick="showTab('invoices')" id="nav-invoices"><span class="ic">📄</span><span>Invoices</span></div>
@@ -2438,6 +2479,142 @@ showTab('dashboard');
 refreshAll();
 document.getElementById('yr').textContent=new Date().getFullYear();
 
+
+
+var _hC=null,_hJ=null;
+function renderHub(){
+  var q=((document.getElementById('hub-search')||{}).value||'').toLowerCase();
+  var allC=S.clients||[],allJ=S.jobs||[];
+  var fc=q?allC.filter(function(c){return (c.name||'').toLowerCase().indexOf(q)>-1||(c.phone||'').indexOf(q)>-1;}):allC;
+  document.getElementById('hub-cc').textContent=fc.length;
+  var cb=document.getElementById('hub-cb');
+  if(!fc.length){cb.innerHTML='<div class="hep">'+(q?'No matches.':'No customers yet.')+'</div>';hubRenderJobs();return;}
+  cb.innerHTML=fc.map(function(c){
+    var cj=allJ.filter(function(j){return j.client===c.id||j.clientName===c.name;});
+    var act=cj.filter(function(j){return j.status==='active'||j.status==='in-progress';}).length;
+    var done=cj.filter(function(j){return j.status==='complete'||j.status==='completed';}).length;
+    var sel=_hC===c.id?' hs':'';
+    var badges=(act?'<span class="hba">'+act+' active</span>':'')+(done?'<span class="hbd">'+done+' done</span>':'');
+    return '<div class="hcc'+sel+'" data-cid="'+c.id+'" onclick="hubSelC(this.dataset.cid)"><div class="hn">'+c.name+'</div><div class="hm">'+(c.phone||'no phone')+(cj.length?' &middot; '+cj.length+' job'+(cj.length!==1?'s':''):'')+badges+'</div></div>';
+  }).join('');
+  hubRenderJobs();
+}
+function hubSelC(id){_hC=id;_hJ=null;renderHub();}
+function hubRenderJobs(){
+  var jb=document.getElementById('hub-jb'),jc=document.getElementById('hub-jc');
+  if(!_hC){jb.innerHTML='<div class="hep">&#8592; Select a customer</div>';jc.textContent='-';document.getElementById('hub-db').innerHTML='<div class="hep" style="margin-top:50px">&#8592; Select a customer</div>';return;}
+  var cl=(S.clients||[]).find(function(c){return c.id===_hC;});
+  var jlist=(S.jobs||[]).filter(function(j){return j.client===_hC||(cl&&j.clientName===cl.name);});
+  jc.textContent=jlist.length;
+  if(!jlist.length){
+    jb.innerHTML='<div class="hep">No projects yet.<br><button class="hal" onclick="hubNewJob()">+ Add Project</button></div>';
+    document.getElementById('hub-db').innerHTML='<div class="hep" style="margin-top:50px">No projects yet.</div>';
+    return;
+  }
+  var sc={active:'#f5a623','in-progress':'#f5a623',pending:'#888',complete:'#4caf50',completed:'#4caf50'};
+  jb.innerHTML=jlist.map(function(j){
+    var col=sc[j.status]||'#666';
+    var exp=(S.expenses||[]).filter(function(e){return e.jobId===j.id||e.job===j.id;}).reduce(function(a,e){return a+parseFloat(e.amount||0);},0);
+    var sel=_hJ===j.id?' hs':'';
+    return '<div class="hjc'+sel+'" data-jid="'+j.id+'" onclick="hubSelJ(this.dataset.jid)"><div class="hn">'+(j.name||j.title||'Untitled Job')+'</div><div class="hm"><span style="color:'+col+'">'+(j.status||'pending').toUpperCase()+'</span>'+(j.value?' &middot; $'+parseFloat(j.value).toLocaleString():'')+(exp?' &middot; $'+exp.toFixed(0)+' spent':'')+(j.start?' &middot; '+j.start:'')+'</div></div>';
+  }).join('');
+}
+function hubSelJ(id){
+  _hJ=id;
+  document.querySelectorAll('.hjc').forEach(function(el){el.classList.remove('hs');});
+  var el=document.querySelector('.hjc[data-jid="'+id+'"]');
+  if(el)el.classList.add('hs');
+  hubRenderDetail();
+}
+function hubRenderDetail(){
+  var db=document.getElementById('hub-db');
+  var job=(S.jobs||[]).find(function(j){return j.id===_hJ;});
+  var cl=(S.clients||[]).find(function(c){return c.id===_hC;});
+  if(!job){db.innerHTML='<div class="hep" style="margin-top:50px">&#8592; Select a project</div>';return;}
+  var cnts=(S.savedContracts||[]).filter(function(c){return c.jobId===job.id||c.job===job.id||(c.jobName&&c.jobName===(job.name||job.title));});
+  var invs=(S.invoices||[]).filter(function(i){return i.jobId===job.id||i.job===job.id;});
+  var exps=(S.expenses||[]).filter(function(e){return e.jobId===job.id||e.job===job.id;});
+  var cos=(S.changeOrders||[]).filter(function(c){return c.jobId===job.id;});
+  var sc={active:'#f5a623','in-progress':'#f5a623',pending:'#888',complete:'#4caf50',completed:'#4caf50'};
+  var col=sc[job.status]||'#777';
+  var bgc=col==='#4caf50'?'#1a3a1a':(col==='#f5a623'?'#3a2a00':'#1e1e1e');
+  var tExp=exps.reduce(function(a,e){return a+parseFloat(e.amount||0);},0);
+  var tInv=invs.reduce(function(a,i){return a+parseFloat(i.amount||0);},0);
+  var tPaid=invs.filter(function(i){return i.paid;}).reduce(function(a,i){return a+parseFloat(i.amount||0);},0);
+  var coAdj=cos.reduce(function(a,c){return a+parseFloat(c.amount||0);},0);
+  var val=parseFloat(job.value||0),profit=val-tExp;
+  var h='<div class="hub-di">';
+  h+='<div class="hdt">'+(job.name||job.title||'Job')+'</div>';
+  h+='<span class="hds-badge" style="background:'+bgc+';color:'+col+'">'+(job.status||'pending').toUpperCase()+'</span>';
+  if(cl)h+='<div class="hdc">&#128100; '+cl.name+(cl.phone?' &middot; &#128222; '+cl.phone:'')+(cl.email?' &middot; '+cl.email:'')+'</div>';
+  if(job.description)h+='<div class="hdesc">'+job.description+'</div>';
+  h+='<div class="hgrid g4">';
+  if(val)h+='<div class="hst"><div class="hsl">CONTRACT VALUE</div><div class="hsv">$'+val.toLocaleString()+'</div></div>';
+  h+='<div class="hst"><div class="hsl">EXPENSES</div><div class="hsv">$'+tExp.toFixed(2)+'</div></div>';
+  h+='<div class="hst"><div class="hsl">INVOICED</div><div class="hsv">$'+tInv.toFixed(2)+'</div></div>';
+  h+='<div class="hst"><div class="hsl">COLLECTED</div><div class="hsv" style="color:#4caf50">$'+tPaid.toFixed(2)+'</div></div>';
+  if(val&&tExp)h+='<div class="hst"><div class="hsl">PROFIT</div><div class="hsv" style="color:'+(profit>=0?'#4caf50':'#e53935')+'">'+(profit>=0?'+':'')+'$'+Math.abs(profit).toFixed(2)+'</div></div>';
+  if(coAdj)h+='<div class="hst"><div class="hsl">CHANGE ORDERS</div><div class="hsv">'+(coAdj>=0?'+':'')+'$'+Math.abs(coAdj).toFixed(2)+'</div></div>';
+  h+='</div>';
+  h+='<div class="hqas">';
+  h+='<button class="hqa" onclick="hubNewContract(_hJ)">&#128196; Contract</button>';
+  h+='<button class="hqa" onclick="hubNewInvoice(_hJ)">&#129534; Invoice</button>';
+  h+='<button class="hqa" onclick="hubAddExpense(_hJ)">&#128184; Expense</button>';
+  h+='<button class="hqa" onclick="hubNewJob()">&#10133; Add Job</button>';
+  h+='<button class="hqa" onclick="showTab(\'jobs\')">&#9998; All Jobs</button>';
+  h+='</div>';
+  function hli(n,m,mc){return '<div class="hli"><div class="hln">'+n+'</div><div class="hlm" style="color:'+mc+'">'+m+'</div></div>';}
+  h+='<div class="hhdr">CONTRACTS ('+cnts.length+')</div>';
+  h+=cnts.length?cnts.map(function(c){var cc=c.status==='Signed'||c.status==='Paid'?'#4caf50':c.status==='Sent'?'#f5a623':'#555';return hli((c.docNum||'Contract')+' \u2014 '+(c.type||'Agreement'),(c.status||'Draft')+(c.total?' \u00b7 $'+parseFloat(c.total).toLocaleString():''),cc);}).join(''):'<div class="hnd">No contracts. <button class="hal" onclick="hubNewContract(_hJ)">+ Create</button></div>';
+  h+='<div class="hhdr">INVOICES ('+invs.length+')</div>';
+  h+=invs.length?invs.map(function(i){return hli('$'+parseFloat(i.amount||0).toLocaleString()+' \u2014 '+(i.description||'Invoice'),(i.paid?'PAID':'UNPAID')+' \u00b7 '+(i.date||''),i.paid?'#4caf50':'#f5a623');}).join(''):'<div class="hnd">No invoices. <button class="hal" onclick="hubNewInvoice(_hJ)">+ Create</button></div>';
+  h+='<div class="hhdr">EXPENSES ('+exps.length+')</div>';
+  h+=exps.length?exps.map(function(e){return hli((e.vendor||e.description||'Expense')+' \u2014 '+(e.category||''),'$'+parseFloat(e.amount||0).toLocaleString()+' \u00b7 '+(e.date||''),'#666');}).join(''):'<div class="hnd">No expenses. <button class="hal" onclick="hubAddExpense(_hJ)">+ Log</button></div>';
+  if(cos.length){h+='<div class="hhdr">CHANGE ORDERS ('+cos.length+')</div>';h+=cos.map(function(c){return hli(c.description||'Change Order',(parseFloat(c.amount||0)>=0?'+':'')+'$'+Math.abs(parseFloat(c.amount||0)).toFixed(2),'#888');}).join('');}
+  h+='</div>';
+  db.innerHTML=h;
+}
+function hubGlobalNew(){
+  var t=prompt('Quick add:\n1 - New Customer\n2 - New Job\n3 - New Contract\n4 - New Invoice\n5 - New Expense');
+  if(t==='1')showTab('clients');
+  else if(t==='2')hubNewJob();
+  else if(t==='3')showTab('contracts');
+  else if(t==='4')showTab('invoices');
+  else if(t==='5')showTab('expenses');
+}
+function hubNewJob(){
+  showTab('jobs');
+  setTimeout(function(){
+    var btn=document.querySelector('#tab-jobs button');
+    if(btn)btn.click();
+    if(_hC){var c=(S.clients||[]).find(function(cl){return cl.id===_hC;});if(c)setTimeout(function(){var s=document.getElementById('job-client')||document.querySelector('#job-modal select');if(s)s.value=c.name;},200);}
+  },100);
+}
+function hubNewContract(jid){showTab('contracts');setTimeout(function(){var s=document.getElementById('ct-job')||document.querySelector('#tab-contracts select');if(s){s.value=jid;if(typeof ctFillJob==='function')ctFillJob();}},200);}
+function hubNewInvoice(jid){showTab('invoices');setTimeout(function(){var s=document.getElementById('inv-job')||document.querySelector('#tab-invoices select');if(s)s.value=jid;},200);}
+function hubAddExpense(jid){showTab('expenses');setTimeout(function(){var s=document.getElementById('exp-job')||document.querySelector('#tab-expenses select');if(s)s.value=jid;},200);}
+
 </script>
+
+<div id="tab-hub" class="tab-section" style="display:none">
+<div class="hub-top">
+  <h2>&#128193; PROJECT HUB</h2>
+  <div class="hub-si"><input id="hub-search" placeholder="Search customers, jobs, contracts..." oninput="renderHub()"></div>
+  <button class="hnb" onclick="hubGlobalNew()">+ NEW</button>
+</div>
+<div class="hub-panels">
+  <div class="hub-col">
+    <div class="hub-col-h">CUSTOMERS <b id="hub-cc">0</b></div>
+    <div class="hub-col-b" id="hub-cb"></div>
+  </div>
+  <div class="hub-col">
+    <div class="hub-col-h">PROJECTS <b id="hub-jc">-</b></div>
+    <div class="hub-col-b" id="hub-jb"><div class="hep">&#8592; Select a customer</div></div>
+  </div>
+  <div class="hub-col hub-dp">
+    <div id="hub-db"><div class="hep" style="margin-top:60px;font-size:1.8rem">&#128193;<br><span style="font-size:.8rem;color:#2a2a2a;display:block;margin-top:12px">Select a customer then a project</span></div></div>
+  </div>
+</div>
+</div>
 </body>
 </html>
