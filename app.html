@@ -1033,7 +1033,16 @@ body{background:var(--bg);color:var(--cream);font-family:'Barlow',sans-serif;fon
       <button class="btn-sm" onclick="window.print()">🖨 Print</button>
       <button class="btn-sm ghost" onclick="exportCSV()">📊 Export CSV</button>
     </div>
+  
+<div class="sec-header" style="margin-top:28px">
+  <h2>&#128203; ACTIVITY LOG</h2>
+  <div style="display:flex;gap:8px">
+    <button class="btn-sm ghost" onclick="renderActivityLog()">&#8635; Refresh</button>
   </div>
+</div>
+<p style="font-size:.84rem;color:var(--muted);margin-bottom:16px;font-style:italic;">Every expense, invoice, mileage trip, and job change — in one clean timeline.</p>
+<div id="activity-log-out"></div>
+</div>
   <p style="font-size:.84rem;color:var(--muted);margin-bottom:20px;font-style:italic;">Summarizes all logged data for tax prep and Schedule C filing. Share with your accountant.</p>
   <div class="report-grid">
     <div class="report-card"><h4>EXPENSE SUMMARY</h4><div id="rep-expenses"></div></div>
@@ -1082,14 +1091,7 @@ body{background:var(--bg);color:var(--cream);font-family:'Barlow',sans-serif;fon
   <div class="frow"><div class="field"><label>Email</label><input type="email" id="c-email" placeholder="contractor@email.com"/></div><div class="field"><label>Trade / Specialty</label><input type="text" id="c-trade" placeholder="Electrician, Plumber..."/></div></div>
   <div class="frow"><div class="field"><label>Default Rate ($/hr)</label><input type="number" id="c-rate" placeholder="0.00" step="0.01"/></div><div class="field"><label>SSN Last 4 (1099)</label><input type="text" id="c-ssn" placeholder="XXXX" maxlength="4"/></div></div>
   <div class="modal-actions"><button class="btn-sm" onclick="addContractor()">Add</button><button class="btn-sm ghost" onclick="closeModal('c-modal')">Cancel</button></div>
-<div class="sec-header" style="margin-top:28px">
-  <h2>&#128203; ACTIVITY LOG</h2>
-  <div style="display:flex;gap:8px">
-    <button class="btn-sm ghost" onclick="renderActivityLog()">&#8635; Refresh</button>
-  </div>
-</div>
-<p style="font-size:.84rem;color:var(--muted);margin-bottom:16px;font-style:italic;">Every expense, invoice, mileage trip, and job change — in one clean timeline.</p>
-<div id="activity-log-out"></div>
+
 </div></div>
 
 <div class="toast" id="toast"></div>
