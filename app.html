@@ -7,11 +7,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --bg:#0c0b09;--panel:#181714;--card:#222018;--lift:#2e2b24;
-  --amber:#e49a20;--amber-l:#f0b040;--amber-d:#a06d10;
-  --rust:#c04420;--green:#3a8c5c;--blue:#2a5f8a;
-  --cream:#ede6d5;--warm:#bfb49a;--muted:#7a7260;
-  --border:rgba(228,154,32,.14);--borderl:rgba(228,154,32,.35);
+  --bg:#f5f3ef;--panel:#1e1c18;--card:#ffffff;--lift:#ece8e0;
+  --amber:#c07800;--amber-l:#e49a20;--amber-d:#8a5200;
+  --rust:#c04420;--green:#2a7a4a;--blue:#2a5f8a;
+  --cream:#1a1917;--warm:#3d3830;--muted:#6b6258;
+  --border:rgba(0,0,0,.10);--borderl:rgba(0,0,0,.20);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;overflow:hidden;}
@@ -42,7 +42,7 @@ body{background:var(--bg);color:var(--cream);font-family:'Barlow',sans-serif;fon
 
 /* MAIN */
 .main{flex:1;overflow-y:auto;padding:20px;background:var(--bg);}
-.tab-panel{display:none;} .tab-panel.active{display:block;overflow-y:auto;height:calc(100vh - 56px);box-sizing:border-box;}
+.tab-panel{display:none;} .tab-panel.active{display:block;overflow-y:auto;height:calc(100vh - 56px);box-sizing:border-box;background:var(--bg);}
 
 /* KPIs */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
@@ -252,7 +252,7 @@ body{background:var(--bg);color:var(--cream);font-family:'Barlow',sans-serif;fon
 .hsl{font-size:.58rem;letter-spacing:.08em;color:#3a3a3a;margin-bottom:3px}
 .hsv{font-size:.87rem;font-weight:700;color:#f5a623}
 .hqas{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.hqa{background:#181818;border:1px solid #232323;color:#aaa;font-size:.74rem;padding:6px 12px;border-radius:4px;cursor:pointer}
+.hqa{background:var(--lift);border:1px solid #232323;color:#aaa;font-size:.74rem;padding:6px 12px;border-radius:4px;cursor:pointer}
 .hqa:hover{background:#f5a623;color:#000;border-color:#f5a623;font-weight:700}
 .hhdr{font-size:.6rem;letter-spacing:.1em;color:#3a3a3a;font-weight:700;border-bottom:1px solid #181818;padding-bottom:5px;margin:13px 0 6px}
 .hli{background:#141414;border:1px solid #1c1c1c;border-radius:4px;padding:8px 11px;margin-bottom:4px}
@@ -458,6 +458,7 @@ body{background:var(--bg);color:var(--cream);font-family:'Barlow',sans-serif;fon
       </div>
     </div>
     <div class="form-actions">
+<div style="margin-bottom:14px"><label style="font-family:'Courier Prime',monospace;font-size:.68rem;letter-spacing:.1em;color:var(--muted);display:block;margin-bottom:6px">📷 PROPERTY / CLIENT PHOTOS</label><input type="file" id="cp-photos" accept="image/*" multiple style="width:100%;font-size:.82rem;color:var(--cream);background:var(--lift);border:1px solid var(--borderl);border-radius:4px;padding:7px;box-sizing:border-box;cursor:pointer"><div style="font-size:.7rem;color:var(--muted);margin-top:3px">Property photos, before shots, site reference images</div></div>
       <button class="btn-sm" onclick="addClient()">Save Client</button>
       <button class="btn-sm ghost" onclick="clearClientForm()">Clear</button>
     </div>
@@ -1075,6 +1076,10 @@ body{background:var(--bg);color:var(--cream);font-family:'Barlow',sans-serif;fon
   <div class="frow"><div class="field"><label>Client *</label><select id="jb-client"><option value="">— Select Client —</option></select></div><div class="field"><label>Type</label><select id="jb-type"><option>Electrical</option><option>Plumbing</option><option>Carpentry</option><option>Remodeling</option><option>New Construction</option><option>Multi-Trade</option><option>Repair</option><option>Other</option></select></div></div>
   <div class="frow"><div class="field"><label>Est. Value ($)</label><input type="number" id="jb-value" placeholder="0.00" step="0.01"/></div><div class="field"><label>Start Date</label><input type="date" id="jb-start"/></div></div>
   <div class="field"><label>Description / Scope</label><textarea id="jb-desc" placeholder="Scope of work..."></textarea></div>
+<div style="margin:12px 0 4px">
+  <label style="font-size:.72rem;letter-spacing:.08em;color:var(--muted);display:block;margin-bottom:5px">📷 JOB PHOTOS</label>
+  <input type="file" id="jb-photos" accept="image/*" multiple style="width:100%;font-size:.82rem;color:var(--cream);background:var(--lift);border:1px solid var(--borderl);border-radius:4px;padding:6px;box-sizing:border-box;cursor:pointer">
+</div>
   <div class="modal-actions"><button class="btn-sm" onclick="addJob()">Create Job</button><button class="btn-sm ghost" onclick="closeModal('job-modal')">Cancel</button></div>
 </div></div>
 
@@ -1552,7 +1557,9 @@ function addClient(){
   if(S.clients.find(c=>c.phone===phone)){
     toast('⚠ Client with that phone already exists');return;
   }
+  var _cp=document.getElementById('cp-photos');encodePhotos(_cp,function(_cph){
   S.clients.push({
+    photos:_cph,
     id:Date.now(),
     name,
     phone,
@@ -1565,6 +1572,8 @@ function addClient(){
     addedDate:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
   });
   save();renderClients();toast('✓ '+name+' added!');
+  if(_cp)_cp.value='';
+  });
   clearClientForm();
 }
 function clearClientForm(){
@@ -1621,6 +1630,7 @@ function renderClients(search){
       <td style="display:flex;gap:4px;">
         <button class="btn-sm ghost" onclick="editClient(${c.id})" style="font-size:.66rem;padding:3px 7px;">Edit</button>
         <button class="btn-sm danger" onclick="deleteClient(${c.id})" style="font-size:.66rem;padding:3px 7px;">×</button>
+        <button onclick="addPhotosTo('client',c.id)" style="font-size:.68rem;padding:2px 7px;background:var(--lift);color:var(--muted);border:1px solid var(--borderl);border-radius:3px;cursor:pointer;margin-left:3px">📷 Photos</button>
       </td>
     </tr>`;
   }).join('');
@@ -1883,16 +1893,16 @@ function renderExpenseBreakdown(){
 function addJob(){
   const name=document.getElementById('jb-name').value.trim();
   if(!name){toast('⚠ Job name required');return;}
-  const clientId=parseInt(document.getElementById('jb-client').value)||null;
+  const clientId=document.getElementById('jb-client').value||null;
   const job={
     id:Date.now(),name,clientId,
     type:document.getElementById('jb-type').value,
     value:parseFloat(document.getElementById('jb-val').value)||0,
     start:document.getElementById('jb-start').value,
     desc:document.getElementById('jb-desc').value.trim(),
-    status:'pending',changeOrders:[],laborCost:0,matCost:0
+    status:'active',changeOrders:[],laborCost:0,matCost:0,photos:[]
   };
-  S.jobs.push(job);save();renderJobs();renderDashboard();updateJobDropdowns();closeModal('job-modal');toast('✓ Job added');
+  var _jp=document.getElementById('jb-photos');encodePhotos(_jp,function(_jph){job.photos=_jph;S.jobs.push(job);save();renderJobs();renderDashboard();updateJobDropdowns();closeModal('job-modal');toast('✓ Job added');if(_jp)_jp.value='';});
   ['jb-name','jb-val','jb-start','jb-desc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
 }
 function deleteJob(id){if(!confirm('Delete this job?'))return;S.jobs=S.jobs.filter(j=>j.id!==id);save();renderJobs();renderDashboard();toast('Job removed');}
@@ -1926,7 +1936,10 @@ function renderJobs(){
         </select>
         <button class="btn-sm ghost" onclick="addExpenseToJob(${j.id})" style="font-size:.64rem;padding:3px 6px;" title="Add expense to this job">💳</button>
         <button class="btn-sm ghost" onclick="addReceiptToJob(${j.id})" style="font-size:.64rem;padding:3px 6px;" title="Add receipt to this job">📷</button>
-        <button class="btn-sm danger" onclick="deleteJob(${j.id})" style="font-size:.66rem;padding:3px 7px;">×</button>
+        <button class="btn-sm danger" 
+        <button onclick="openJobDetail(job.id)" style="font-size:.72rem;padding:3px 10px;background:var(--amber);color:#fff;border:none;border-radius:3px;cursor:pointer;font-weight:700;margin-right:4px">📂 Open</button>
+        onclick="deleteJob(${j.id})" style="font-size:.66rem;padding:3px 7px;">×</button>
+        <button onclick="addPhotosTo('job',job.id)" style="font-size:.68rem;padding:2px 7px;background:var(--lift);color:var(--muted);border:1px solid var(--borderl);border-radius:3px;cursor:pointer;margin-left:3px">📷</button>
       </td>
     </tr>`;
   }).join('');
@@ -2677,13 +2690,166 @@ function renderActivityLog(){
     byDate[date].forEach(function(e){
       html+='<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #111">';
       html+='<span style="font-size:1rem;width:22px;text-align:center">'+e.icon+'</span>';
-      html+='<span style="font-size:.65rem;color:#444;background:#181818;padding:1px 6px;border-radius:3px;min-width:60px;text-align:center">'+e.type+'</span>';
+      html+='<span style="font-size:.65rem;color:#444;background:var(--lift);padding:1px 6px;border-radius:3px;min-width:60px;text-align:center">'+e.type+'</span>';
       html+='<span style="font-size:.8rem;color:#bbb;flex:1">'+e.desc+'</span>';
       html+='<span style="font-size:.82rem;font-weight:700;color:'+e.color+'">'+e.amt+'</span>';
       html+='</div>';
     });
   });
   out.innerHTML=html;
+}
+
+
+function encodePhotos(inp,cb){var f=inp&&inp.files?Array.from(inp.files):[];if(!f.length){cb([]);return;}var r=[],d=0;f.forEach(function(file,i){var rd=new FileReader();rd.onload=function(e){var img=new Image();img.onload=function(){var M=900,w=img.width,h=img.height;if(w>M||h>M){var s=Math.min(M/w,M/h);w=Math.round(w*s);h=Math.round(h*s);}var c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);r[i]=c.toDataURL('image/jpeg',.75);if(++d===f.length)cb(r);};img.src=e.target.result;};rd.readAsDataURL(file);});}
+function photoThumbsHTML(photos){if(!photos||!photos.length)return'';return'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">'+photos.map(function(src){return'<img src="'+src+'" onclick="var s=this.style;s.width=s.width===\'220px\'?\'68px\':\'220px\'" style="width:68px;height:68px;object-fit:cover;border-radius:4px;border:1px solid var(--borderl);cursor:pointer;transition:width .2s">';}).join('')+'</div>';}
+function addPhotosTo(type,id){var inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.multiple=true;inp.onchange=function(){encodePhotos(inp,function(photos){if(!photos.length)return;if(type==='job'){var j=S.jobs.find(function(x){return String(x.id)===String(id);});if(j){j.photos=(j.photos||[]).concat(photos);save();renderJobs();showToast(photos.length+' photo(s) added');}}else if(type==='client'){var c=S.clients.find(function(x){return String(x.id)===String(id);});if(c){c.photos=(c.photos||[]).concat(photos);save();renderClients();showToast(photos.length+' photo(s) added');}}});};inp.click();}
+function showToast(msg){var d=document.createElement('div');d.textContent=msg;d.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:8px 20px;border-radius:6px;font-size:.84rem;z-index:9999;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.3)';document.body.appendChild(d);setTimeout(function(){d.remove();},2500);}
+
+
+function openJobDetail(jobId){
+  var job=S.jobs.find(function(j){return String(j.id)===String(jobId);});
+  if(!job)return;
+  var client=S.clients.find(function(c){return String(c.id)===String(job.clientId||job.client);});
+  document.getElementById('jdp-title').textContent=job.name||'JOB DETAIL';
+  document.getElementById('jdp-client').textContent=client?client.name:(job.clientName||'');
+  renderJobDetail(job,client);
+  document.getElementById('job-detail-panel').style.display='block';
+  document.getElementById('job-detail-overlay').style.display='block';
+}
+function closeJobDetail(){
+  document.getElementById('job-detail-panel').style.display='none';
+  document.getElementById('job-detail-overlay').style.display='none';
+}
+function renderJobDetail(job,client){
+  var jobId=job.id;
+  // expenses for this job
+  var jobExp=(S.expenses||[]).filter(function(e){return String(e.jobId)===String(jobId);});
+  var bizExp=(S.expenses||[]).filter(function(e){return !e.jobId||e.jobId==='';});
+  var jobInv=(S.invoices||[]).filter(function(i){return String(i.jobId)===String(jobId);});
+  var totalExp=jobExp.reduce(function(s,e){return s+(parseFloat(e.amt||e.amount)||0);},0);
+  var totalInv=jobInv.reduce(function(s,i){return s+(parseFloat(i.amt||i.amount)||0);},0);
+  var profit=(job.value||0)-totalExp;
+
+  // photos section
+  var photosHTML='<div style="margin-bottom:20px">';
+  photosHTML+='<div style="font-family:\'Courier Prime\',monospace;font-size:.7rem;letter-spacing:.1em;color:var(--muted);margin-bottom:8px">📷 JOB PHOTOS ('+(job.photos&&job.photos.length||0)+')</div>';
+  if(job.photos&&job.photos.length){
+    photosHTML+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">';
+    job.photos.forEach(function(src,i){
+      photosHTML+='<img src="'+src+'" onclick="this.style.width=this.style.width===\'280px\'?\'80px\':\'280px\'" style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid var(--borderl);cursor:pointer;transition:width .2s">';
+    });
+    photosHTML+='</div>';
+  }
+  photosHTML+='<button onclick="jdpAddPhotos(\''+jobId+'\')" style="font-size:.8rem;padding:6px 14px;background:var(--lift);color:var(--warm);border:1px solid var(--borderl);border-radius:4px;cursor:pointer">📷 Add Photos</button></div>';
+
+  // financials
+  var finHTML='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px">';
+  finHTML+='<div style="background:var(--lift);border-radius:6px;padding:12px;text-align:center"><div style="font-size:.62rem;color:var(--muted);letter-spacing:.08em">CONTRACT VALUE</div><div style="font-size:1.1rem;font-weight:700;color:var(--amber)">$'+(job.value||0).toLocaleString()+'</div></div>';
+  finHTML+='<div style="background:var(--lift);border-radius:6px;padding:12px;text-align:center"><div style="font-size:.62rem;color:var(--muted);letter-spacing:.08em">JOB EXPENSES</div><div style="font-size:1.1rem;font-weight:700;color:var(--rust)">$'+totalExp.toFixed(2)+'</div></div>';
+  finHTML+='<div style="background:var(--lift);border-radius:6px;padding:12px;text-align:center"><div style="font-size:.62rem;color:var(--muted);letter-spacing:.08em">PROFIT</div><div style="font-size:1.1rem;font-weight:700;color:'+(profit>=0?'var(--green)':'var(--rust)')+'">$'+profit.toFixed(2)+'</div></div>';
+  finHTML+='</div>';
+
+  // quick actions
+  var actHTML='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">';
+  actHTML+='<button onclick="jdpNewContract(\''+jobId+'\')" style="flex:1;min-width:140px;padding:10px;background:var(--amber);color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:700;font-size:.82rem">📄 New Contract/SOW</button>';
+  actHTML+='<button onclick="jdpNewInvoice(\''+jobId+'\')" style="flex:1;min-width:140px;padding:10px;background:var(--green);color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:700;font-size:.82rem">💵 New Invoice</button>';
+  actHTML+='<button onclick="jdpAddJobExpense(\''+jobId+'\')" style="flex:1;min-width:140px;padding:10px;background:var(--rust);color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:700;font-size:.82rem">💸 Add Job Expense</button>';
+  actHTML+='<button onclick="jdpEditStatus(\''+jobId+'\')" style="flex:1;min-width:140px;padding:10px;background:var(--lift);color:var(--warm);border:1px solid var(--borderl);border-radius:4px;cursor:pointer;font-size:.82rem">✏️ Edit Status/Notes</button>';
+  actHTML+='</div>';
+
+  // expenses list
+  var expListHTML='<div style="margin-bottom:20px"><div style="font-family:\'Courier Prime\',monospace;font-size:.7rem;letter-spacing:.1em;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between"><span>JOB EXPENSES</span><span style="color:var(--rust)">$'+totalExp.toFixed(2)+' total</span></div>';
+  if(jobExp.length){
+    jobExp.forEach(function(e){
+      expListHTML+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">';
+      expListHTML+='<span style="font-size:.8rem;flex:1;color:var(--warm)">'+(e.vendor||e.description||'Expense')+'</span>';
+      expListHTML+='<span style="font-size:.75rem;color:var(--muted)">'+(e.cat||e.category||'')+'</span>';
+      expListHTML+='<span style="font-weight:700;color:var(--rust)">$'+(parseFloat(e.amt||e.amount||0)).toFixed(2)+'</span>';
+      expListHTML+='<button onclick="deleteExpense(\''+e.id+'\');openJobDetail(\''+jobId+'\')" style="background:transparent;border:none;color:var(--rust);cursor:pointer;font-size:.8rem">✕</button>';
+      expListHTML+='</div>';
+    });
+  }else{expListHTML+='<div style="color:var(--muted);font-size:.82rem;padding:8px 0">No job expenses yet</div>';}
+  expListHTML+='</div>';
+
+  // invoices list
+  var invListHTML='<div style="margin-bottom:20px"><div style="font-family:\'Courier Prime\',monospace;font-size:.7rem;letter-spacing:.1em;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between"><span>INVOICES</span><span style="color:var(--green)">$'+totalInv.toFixed(2)+' invoiced</span></div>';
+  if(jobInv.length){
+    jobInv.forEach(function(i){
+      invListHTML+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">';
+      invListHTML+='<span style="font-size:.8rem;flex:1;color:var(--warm)">'+(i.description||'Invoice')+'</span>';
+      invListHTML+='<span style="font-size:.72rem;padding:1px 6px;border-radius:3px;color:'+(i.status==='paid'?'var(--green)':'var(--amber)')+'">'+i.status+'</span>';
+      invListHTML+='<span style="font-weight:700;color:var(--green)">$'+(parseFloat(i.amt||i.amount||0)).toFixed(2)+'</span>';
+      invListHTML+='</div>';
+    });
+  }else{invListHTML+='<div style="color:var(--muted);font-size:.82rem;padding:8px 0">No invoices yet</div>';}
+  invListHTML+='</div>';
+
+  document.getElementById('jdp-body').innerHTML=finHTML+actHTML+photosHTML+expListHTML+invListHTML;
+}
+
+function jdpAddPhotos(jobId){
+  var inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.multiple=true;
+  inp.onchange=function(){
+    encodePhotos(inp,function(photos){
+      if(!photos.length)return;
+      var job=S.jobs.find(function(j){return String(j.id)===String(jobId);});
+      if(job){job.photos=(job.photos||[]).concat(photos);save();renderJobs();openJobDetail(jobId);showToast(photos.length+' photo(s) added');}
+    });
+  };inp.click();
+}
+
+function jdpAddJobExpense(jobId){
+  var job=S.jobs.find(function(j){return String(j.id)===String(jobId);});
+  var v=prompt('Expense: vendor, category, amount (e.g. "Home Depot, Materials, 125.50")');
+  if(!v)return;
+  var parts=v.split(',');
+  var exp={id:'exp-'+Date.now(),jobId:jobId,vendor:(parts[0]||'').trim(),cat:(parts[1]||'Materials').trim(),amt:parseFloat((parts[2]||'0').trim())||0,date:new Date().toISOString().split('T')[0],notes:job?job.name:''};
+  if(!S.expenses)S.expenses=[];
+  S.expenses.push(exp);save();openJobDetail(jobId);showToast('Expense added: $'+exp.amt.toFixed(2));
+}
+
+function jdpNewContract(jobId){
+  var job=S.jobs.find(function(j){return String(j.id)===String(jobId);});
+  closeJobDetail();showTab('contracts');
+  setTimeout(function(){
+    var sel=document.getElementById('ct-job');if(sel)sel.value=jobId;
+    var cn=document.getElementById('ct-client');
+    if(cn&&job&&job.clientId){cn.value=job.clientId;}
+    showToast('Contract form ready — fill in details');
+  },200);
+}
+
+function jdpNewInvoice(jobId){
+  var job=S.jobs.find(function(j){return String(j.id)===String(jobId);});
+  closeJobDetail();showTab('invoices');
+  setTimeout(function(){
+    var sel=document.getElementById('inv-job');if(sel)sel.value=jobId;
+    if(job){var am=document.getElementById('inv-amt');if(am)am.value=job.value||'';}
+    showToast('Invoice form ready — fill in details');
+  },200);
+}
+
+function jdpEditStatus(jobId){
+  var job=S.jobs.find(function(j){return String(j.id)===String(jobId);});
+  if(!job)return;
+  var newStatus=prompt('Status (active/pending/complete):',job.status||'active');
+  if(newStatus)job.status=newStatus.toLowerCase().trim();
+  var notes=prompt('Job notes (leave blank to keep current):',job.notes||'');
+  if(notes!==null)job.notes=notes;
+  save();renderJobs();openJobDetail(jobId);showToast('Job updated');
+}
+
+
+function setExpType(t){
+  var jBtn=document.getElementById('exp-type-job');
+  var bBtn=document.getElementById('exp-type-biz');
+  var jobSel=document.getElementById('exp-job-row');
+  if(jBtn)jBtn.style.background=t==='job'?'var(--rust)':'var(--lift)';
+  if(jBtn)jBtn.style.color=t==='job'?'#fff':'var(--muted)';
+  if(bBtn)bBtn.style.background=t==='biz'?'#2a5f8a':'var(--lift)';
+  if(bBtn)bBtn.style.color=t==='biz'?'#fff':'var(--muted)';
+  if(jobSel)jobSel.style.display=t==='job'?'block':'none';
+  window._expType=t;
 }
 
 </script>
@@ -2708,5 +2874,18 @@ function renderActivityLog(){
   </div>
 </div>
 </div>
+
+<div id="job-detail-panel" style="display:none;position:fixed;top:0;right:0;width:min(680px,100vw);height:100vh;background:var(--card);border-left:2px solid var(--borderl);z-index:500;overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,.15)">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);background:var(--panel);position:sticky;top:0;z-index:1">
+    <div>
+      <div id="jdp-title" style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.06em;color:var(--amber)">JOB DETAIL</div>
+      <div id="jdp-client" style="font-size:.78rem;color:var(--sidebar-muted);font-family:'Courier Prime',monospace"></div>
+    </div>
+    <button onclick="closeJobDetail()" style="background:transparent;border:1px solid var(--muted);color:var(--sidebar-text);border-radius:4px;padding:4px 12px;cursor:pointer;font-size:.82rem">✕ Close</button>
+  </div>
+  <div id="jdp-body" style="padding:20px"></div>
+</div>
+<div id="job-detail-overlay" onclick="closeJobDetail()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:499"></div>
+
 </body>
 </html>
