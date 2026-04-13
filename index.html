@@ -763,89 +763,113 @@ function pickService(name){
 
 // ── SUBMIT ESTIMATE ──
 function submitEstimate(){
-  const phone = document.getElementById('hq-phone').value.trim();
-  if(!phone){
-    document.getElementById('hq-phone').style.borderColor='var(--rust)';
-    document.getElementById('hq-phone').focus();
-    showNotify('⚠ Phone number is required');
-    return;
-  }
-  const name  = document.getElementById('hq-name').value.trim();
-  const email = document.getElementById('hq-email').value.trim();
-  const type  = document.getElementById('hq-type').value;
-  const addr  = document.getElementById('hq-addr').value.trim();
-  const desc  = document.getElementById('hq-desc').value.trim();
-  const photos= document.getElementById('hq-photos').files.length;
+  const name=document.getElementById('hq-name')?.value.trim()||'';
+  const phone=document.getElementById('hq-phone')?.value.trim()||'';
+  const email=document.getElementById('hq-email')?.value.trim()||'';
+  const type=document.getElementById('hq-type')?.value||'';
+  const addr=document.getElementById('hq-addr')?.value.trim()||'';
+  const desc=document.getElementById('hq-desc')?.value.trim()||'';
+  const photoInput=document.getElementById('hq-photos');
+  const files=photoInput&&photoInput.files?Array.from(photoInput.files):[];
+  if(!name||!phone){showNotify('⚠ Please enter your name and phone number.');return;}
 
-  // Save lead to localStorage so David's app can see it
-  const lead={id:Date.now(),date:new Date().toLocaleString(),name:name||'Not given',phone,email,type:type||'Not specified',address:addr,description:desc,callbackTime:'Any time',photoCount:photos,status:'new'};
-  const leads=JSON.parse(localStorage.getItem('drakeLeads')||'[]');
-  leads.unshift(lead);
-  localStorage.setItem('drakeLeads',JSON.stringify(leads));
-
-  // Also create a to-do task in David's app so it shows up in his task list
-  try {
-    const appData = JSON.parse(localStorage.getItem('drakeV3')||'{}');
-    if(!appData.tasks) appData.tasks = [];
-    const today = new Date().toISOString().split('T')[0];
-    const taskDesc = '📥 NEW LEAD: Call ' + (name||'website visitor') + ' · ' + phone + (type ? ' · ' + type : '') + (addr ? ' · ' + addr : '');
-    const maxId = appData.tasks.reduce((m,t)=>Math.max(m,t.id||0),0);
-    appData.tasks.unshift({
-      id: maxId + 1,
-      desc: taskDesc,
-      cat: 'follow-up',
-      due: today,
-      done: false,
-      priority: 'high'
+  // Helper: resize a File to max 800px and return base64 dataURL
+  function resizePhoto(file){
+    return new Promise(resolve=>{
+      const reader=new FileReader();
+      reader.onload=e=>{
+        const img=new Image();
+        img.onload=()=>{
+          const MAX=800;
+          let w=img.width,h=img.height;
+          if(w>MAX||h>MAX){const r=Math.min(MAX/w,MAX/h);w=Math.round(w*r);h=Math.round(h*r);}
+          const canvas=document.createElement('canvas');
+          canvas.width=w;canvas.height=h;
+          canvas.getContext('2d').drawImage(img,0,0,w,h);
+          resolve(canvas.toDataURL('image/jpeg',0.72));
+        };
+        img.src=e.target.result;
+      };
+      reader.readAsDataURL(file);
     });
-    localStorage.setItem('drakeV3', JSON.stringify(appData));
-  } catch(e) { /* silent fail — email still goes through */ }
+  }
 
-  // Disable button while sending
-  const btn = document.querySelector('.submit-btn');
-  if(btn){ btn.disabled=true; btn.textContent='SENDING...'; }
+  // Process all photos then submit
+  Promise.all(files.map(resizePhoto)).then(photoDataURLs=>{
+    const leadId='lead-'+Date.now();
+    const leadDate=new Date().toISOString().split('T')[0];
 
-  // Send via FormSubmit.co — delivers directly to David's Gmail, no backend needed
-  fetch('https://formsubmit.co/ajax/handymanandtradeservices@gmail.com', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({
-      _subject: 'New Quote Request — ' + (name||'Website Visitor') + ' — ' + (type||'General'),
-      _template: 'table',
-      _captcha: 'false',
-      Name: name || 'Not provided',
-      Phone: phone,
-      Email: email || 'Not provided',
-      Service: type || 'Not specified',
-      Address: addr || 'Not provided',
-      'Photos attached': photos > 0 ? photos + ' photo(s) — client will send separately' : 'None',
-      Description: desc || 'None provided',
-      'Submitted from': 'handymanandtradeservices.com',
-      'Date/Time': new Date().toLocaleString()
+    // ── 1. Save full lead to drakeLeads (read by app Quote Leads tab) ──
+    try{
+      const leads=JSON.parse(localStorage.getItem('drakeLeads')||'[]');
+      leads.unshift({
+        id:leadId,
+        date:leadDate,
+        name:name||'Website Visitor',
+        phone:phone,
+        email:email||'',
+        type:type||'General',
+        addr:addr||'',
+        desc:desc||'',
+        photos:photoDataURLs,
+        source:'website',
+        status:'new'
+      });
+      localStorage.setItem('drakeLeads',JSON.stringify(leads));
+    }catch(e){console.warn('drakeLeads save failed',e);}
+
+    // ── 2. Also add task + client stub to drakeV3 ──
+    try{
+      const appData=JSON.parse(localStorage.getItem('drakeV3')||'{}');
+      if(!appData.tasks)appData.tasks=[];
+      const today=new Date().toISOString().split('T')[0];
+      const maxId=appData.tasks.reduce((m,t)=>Math.max(m,t.id||0),0);
+      appData.tasks.unshift({id:maxId+1,desc:'📋 NEW LEAD: Call '+( name||'website visitor')+' · '+phone+(type?' · '+type:'')+(addr?' · '+addr:''),cat:'follow-up',due:today,done:false,priority:'high'});
+      localStorage.setItem('drakeV3',JSON.stringify(appData));
+    }catch(e){}
+
+    // ── 3. Send email via FormSubmit.co ──
+    const btn=document.querySelector('.submit-btn');
+    if(btn){btn.disabled=true;btn.textContent='SENDING...';}
+
+    fetch('https://formsubmit.co/ajax/handymanandtradeservices@gmail.com',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({
+        _subject:'New Quote Request — '+(name||'Website Visitor')+' — '+(type||'General'),
+        _template:'table',
+        _captcha:'false',
+        Name:name||'Not provided',
+        Phone:phone,
+        Email:email||'Not provided',
+        Service:type||'Not specified',
+        Address:addr||'Not provided',
+        'Photos':photoDataURLs.length>0?photoDataURLs.length+' photo(s) captured — viewable in Drake Trade app under Quote Leads':'None',
+        Description:desc||'None provided',
+        'Submitted from':'handymanandtradeservices.com',
+        'Date/Time':new Date().toLocaleString()
+      })
     })
-  })
-  .then(r => r.json())
-  .then(data => {
-    if(data.success === 'true' || data.success === true){
-      // Email sent successfully
+    .then(r=>r.json())
+    .then(data=>{
+      if(data.success==='true'||data.success===true){
+        document.getElementById('hq-success').style.display='block';
+        ['hq-name','hq-phone','hq-email','hq-addr','hq-desc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+        const s=document.getElementById('hq-type');if(s)s.value='';
+        if(photoInput)photoInput.value='';
+        showNotify('✓ Request sent to David!');
+        if(btn){btn.disabled=false;btn.textContent='SEND REQUEST — DAVID WILL CALL YOU →';}
+      }else{throw new Error('Send failed');}
+    })
+    .catch(()=>{
+      // Fallback mailto
+      showNotify('△ Using email app as backup...');
+      const body='New quote request from handymanandtradeservices.com:%0A%0AName: '+encodeURIComponent(name||'Not given')+'%0APhone: '+encodeURIComponent(phone)+'%0AEmail: '+encodeURIComponent(email||'Not given')+'%0AService: '+encodeURIComponent(type||'Not specified')+'%0AAddress: '+encodeURIComponent(addr||'Not given')+'%0APhotos: '+photoDataURLs.length+' photo(s) stored in app%0AJob Description:%0A'+encodeURIComponent(desc||'None provided');
+      window.open('mailto:handymanandtradeservices@gmail.com?subject=Quote Request - '+encodeURIComponent(name||'Website Visitor')+'&body='+body);
       document.getElementById('hq-success').style.display='block';
-      ['hq-name','hq-phone','hq-email','hq-addr','hq-desc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-      const s=document.getElementById('hq-type');if(s)s.value='';
-      showNotify('✓ Request sent to David!');
-      if(btn){ btn.disabled=false; btn.textContent='SEND REQUEST — DAVID WILL CALL YOU →'; }
-    } else {
-      throw new Error('Send failed');
-    }
-  })
-  .catch(() => {
-    // Fallback to mailto if fetch fails
-    showNotify('⚠ Using email app as backup...');
-    const body='New quote request from handymanandtradeservices.com:%0A%0AName: '+encodeURIComponent(name||'Not given')+'%0APhone: '+encodeURIComponent(phone)+'%0AEmail: '+encodeURIComponent(email||'Not given')+'%0AService: '+encodeURIComponent(type||'Not specified')+'%0AAddress: '+encodeURIComponent(addr||'Not given')+'%0APhotos: '+photos+'%0A%0AJob Description:%0A'+encodeURIComponent(desc||'None provided');
-    window.open('mailto:handymanandtradeservices@gmail.com?subject=Quote Request - '+encodeURIComponent(name||'Website Visitor')+'&body='+body);
-    document.getElementById('hq-success').style.display='block';
-    ['hq-name','hq-phone','hq-email','hq-addr','hq-desc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-    const s=document.getElementById('hq-type');if(s)s.value='';
-    if(btn){ btn.disabled=false; btn.textContent='SEND REQUEST — DAVID WILL CALL YOU →'; }
+      if(photoInput)photoInput.value='';
+      if(btn){btn.disabled=false;btn.textContent='SEND REQUEST — DAVID WILL CALL YOU →';}
+    });
   });
 }
 </script>

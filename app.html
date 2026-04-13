@@ -1183,7 +1183,14 @@ function renderLeads(filter){
         ${lead.type&&lead.type!=='Not specified'?`<div><span style="font-family:'Courier Prime',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Service Type</span><div style="font-size:.88rem;color:var(--warm);margin-top:2px;">${lead.type}</div></div>`:''}
         ${lead.address?`<div><span style="font-family:'Courier Prime',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Job Address</span><div style="font-size:.88rem;color:var(--warm);margin-top:2px;">${lead.address}</div></div>`:''}
         ${lead.callbackTime?`<div><span style="font-family:'Courier Prime',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Best Time to Call</span><div style="font-size:.88rem;color:var(--warm);margin-top:2px;">${lead.callbackTime}</div></div>`:''}
-        ${lead.photoCount?`<div><span style="font-family:'Courier Prime',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Photos</span><div style="font-size:.88rem;color:var(--amber);margin-top:2px;">📷 ${lead.photoCount} photo${lead.photoCount>1?'s':''} attached (check email)</div></div>`:''}
+        ${(lead.photos&&lead.photos.length>0)||lead.photoCount?`
+<div style="margin-top:4px">
+  <span style="font-family:'Courier Prime',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Photos (${lead.photos?lead.photos.length:lead.photoCount})</span>
+  ${lead.photos&&lead.photos.length>0?`
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
+    ${lead.photos.map((src,i)=>`<img src="${src}" onclick="this.style.width=this.style.width==='220px'?'72px':'220px'" style="width:72px;height:72px;object-fit:cover;border-radius:4px;border:1px solid var(--border);cursor:pointer;transition:width .2s" title="Click to enlarge">`).join('')}
+  </div>`:`<div style="font-size:.88rem;color:var(--amber);margin-top:2px;">📷 ${lead.photoCount} photo(s) in email</div>`}
+</div>`:''}
       </div>
       ${lead.description&&lead.description!=='None provided'?`<div style="background:var(--lift);border-left:2px solid var(--amber-d);padding:10px 14px;margin-bottom:14px;font-size:.86rem;color:var(--warm);line-height:1.65;"><span style="font-family:'Courier Prime',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px;">Description</span>${lead.description}</div>`:''}
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
