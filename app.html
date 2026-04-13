@@ -42,7 +42,7 @@ body{background:var(--bg);color:var(--cream);font-family:'Barlow',sans-serif;fon
 
 /* MAIN */
 .main{flex:1;overflow-y:auto;padding:20px;background:var(--bg);}
-.tab-panel{display:none;} .tab-panel.active{display:block;}
+.tab-panel{display:none;} .tab-panel.active{display:block;overflow-y:auto;height:calc(100vh - 56px);box-sizing:border-box;}
 
 /* KPIs */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
