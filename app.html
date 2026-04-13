@@ -2594,9 +2594,23 @@ function hubNewContract(jid){showTab('contracts');setTimeout(function(){var s=do
 function hubNewInvoice(jid){showTab('invoices');setTimeout(function(){var s=document.getElementById('inv-job')||document.querySelector('#tab-invoices select');if(s)s.value=jid;},200);}
 function hubAddExpense(jid){showTab('expenses');setTimeout(function(){var s=document.getElementById('exp-job')||document.querySelector('#tab-expenses select');if(s)s.value=jid;},200);}
 
+
+// Hub tab hook - handles tab-panel class + flex display + renderHub
+var _ost=showTab;
+window.showTab=function(n){
+  _ost(n);
+  if(n==='hub'){
+    var h=document.getElementById('tab-hub');
+    if(h){h.style.display='flex';}
+    if(typeof renderHub==='function')renderHub();
+    document.querySelectorAll('.nav-item').forEach(function(e){e.classList.remove('active');});
+    var nh=document.getElementById('nav-hub');
+    if(nh)nh.classList.add('active');
+  }
+};
 </script>
 
-<div id="tab-hub" class="tab-section" style="display:none">
+<div id="tab-hub" class="tab-panel">
 <div class="hub-top">
   <h2>&#128193; PROJECT HUB</h2>
   <div class="hub-si"><input id="hub-search" placeholder="Search customers, jobs, contracts..." oninput="renderHub()"></div>
