@@ -2562,14 +2562,16 @@ function hubRenderDetail(){
   h+='<button class="hqa" onclick="hubAddExpense(_hJ)">&#128184; Expense</button>';
   h+='<button class="hqa" onclick="hubNewJob()">&#10133; Add Job</button>';
   h+='<button class="hqa" onclick="showTab(\'jobs\')">&#9998; All Jobs</button>';
+  h+='<button class="hqa" style="color:#e53935;border-color:#3a1010" onclick="hubDeleteJob(_hJ)">&#128465; Delete Job</button>';
+  h+='<button class="hqa" style="color:#e07070;border-color:#2a1010" onclick="hubDeleteClient(_hC)">&#128465; Delete Customer</button>';
   h+='</div>';
   function hli(n,m,mc){return '<div class="hli"><div class="hln">'+n+'</div><div class="hlm" style="color:'+mc+'">'+m+'</div></div>';}
   h+='<div class="hhdr">CONTRACTS ('+cnts.length+')</div>';
   h+=cnts.length?cnts.map(function(c){var cc=c.status==='Signed'||c.status==='Paid'?'#4caf50':c.status==='Sent'?'#f5a623':'#555';return hli((c.docNum||'Contract')+' \u2014 '+(c.type||'Agreement'),(c.status||'Draft')+(c.total?' \u00b7 $'+parseFloat(c.total).toLocaleString():''),cc);}).join(''):'<div class="hnd">No contracts. <button class="hal" onclick="hubNewContract(_hJ)">+ Create</button></div>';
   h+='<div class="hhdr">INVOICES ('+invs.length+')</div>';
-  h+=invs.length?invs.map(function(i){return hli('$'+parseFloat(i.amount||0).toLocaleString()+' \u2014 '+(i.description||'Invoice'),(i.paid?'PAID':'UNPAID')+' \u00b7 '+(i.date||''),i.paid?'#4caf50':'#f5a623');}).join(''):'<div class="hnd">No invoices. <button class="hal" onclick="hubNewInvoice(_hJ)">+ Create</button></div>';
+  h+=invs.length?invs.map(function(i){return '<div class="hli"><div><div class="hln">$'+parseFloat(i.amount||0).toLocaleString()+' \u2014 '+(i.description||'Invoice')+'</div><div class="hlm" style="color:'+(i.paid?'#4caf50':'#f5a623')+'">'+(i.paid?'PAID':'UNPAID')+' \u00b7 '+(i.date||'')+'</div></div><div style="display:flex;gap:8px;align-items:center"><span class="hal" onclick="showTab(\'invoices\')">view</span><button class="hal" style="color:#e53935" onclick="hubDeleteInvoice(\''+i.id+'\')">\u2715</button></div></div>';}).join(''):'<div class="hnd">No invoices. <button class="hal" onclick="hubNewInvoice(_hJ)">+ Create</button></div>';
   h+='<div class="hhdr">EXPENSES ('+exps.length+')</div>';
-  h+=exps.length?exps.map(function(e){return hli((e.vendor||e.description||'Expense')+' \u2014 '+(e.category||''),'$'+parseFloat(e.amount||0).toLocaleString()+' \u00b7 '+(e.date||''),'#666');}).join(''):'<div class="hnd">No expenses. <button class="hal" onclick="hubAddExpense(_hJ)">+ Log</button></div>';
+  h+=exps.length?exps.map(function(e){return '<div class="hli"><div><div class="hln">'+(e.vendor||e.description||'Expense')+' \u2014 '+(e.category||'')+'</div><div class="hlm">$'+parseFloat(e.amount||0).toLocaleString()+' \u00b7 '+(e.date||'')+'</div></div><div style="display:flex;gap:8px;align-items:center"><span class="hal" onclick="showTab(\'expenses\')">view</span><button class="hal" style="color:#e53935" onclick="hubDeleteExpense(\''+e.id+'\')">\u2715</button></div></div>';}).join(''):'<div class="hnd">No expenses. <button class="hal" onclick="hubAddExpense(_hJ)">+ Log</button></div>';
   if(cos.length){h+='<div class="hhdr">CHANGE ORDERS ('+cos.length+')</div>';h+=cos.map(function(c){return hli(c.description||'Change Order',(parseFloat(c.amount||0)>=0?'+':'')+'$'+Math.abs(parseFloat(c.amount||0)).toFixed(2),'#888');}).join('');}
   h+='</div>';
   db.innerHTML=h;
@@ -2608,6 +2610,35 @@ window.showTab=function(n){
     if(nh)nh.classList.add('active');
   }
 };
+
+function hubDeleteJob(jid){
+  if(!confirm('Delete this job and all linked data? This cannot be undone.'))return;
+  if(typeof deleteJob==='function')deleteJob(jid);
+  _hJ=null;
+  hubRenderJobs();
+  document.getElementById('hub-db').innerHTML='<div class="hep" style="margin-top:50px">Job deleted.</div>';
+}
+function hubDeleteClient(cid){
+  if(!confirm('Delete this customer? Their jobs will remain in the Jobs tab.'))return;
+  if(typeof deleteClient==='function')deleteClient(cid);
+  _hC=null;_hJ=null;renderHub();
+}
+function hubDeleteContract(cid){
+  if(!confirm('Delete this contract?'))return;
+  if(typeof deleteContract==='function')deleteContract(cid);
+  hubRenderDetail();
+}
+function hubDeleteInvoice(iid){
+  if(!confirm('Delete this invoice?'))return;
+  if(typeof deleteInvoice==='function')deleteInvoice(iid);
+  hubRenderDetail();
+}
+function hubDeleteExpense(eid){
+  if(!confirm('Delete this expense?'))return;
+  if(typeof deleteExpense==='function')deleteExpense(eid);
+  hubRenderDetail();
+}
+
 </script>
 
 <div id="tab-hub" class="tab-panel">
