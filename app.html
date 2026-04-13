@@ -1082,6 +1082,14 @@ body{background:var(--bg);color:var(--cream);font-family:'Barlow',sans-serif;fon
   <div class="frow"><div class="field"><label>Email</label><input type="email" id="c-email" placeholder="contractor@email.com"/></div><div class="field"><label>Trade / Specialty</label><input type="text" id="c-trade" placeholder="Electrician, Plumber..."/></div></div>
   <div class="frow"><div class="field"><label>Default Rate ($/hr)</label><input type="number" id="c-rate" placeholder="0.00" step="0.01"/></div><div class="field"><label>SSN Last 4 (1099)</label><input type="text" id="c-ssn" placeholder="XXXX" maxlength="4"/></div></div>
   <div class="modal-actions"><button class="btn-sm" onclick="addContractor()">Add</button><button class="btn-sm ghost" onclick="closeModal('c-modal')">Cancel</button></div>
+<div class="sec-header" style="margin-top:28px">
+  <h2>&#128203; ACTIVITY LOG</h2>
+  <div style="display:flex;gap:8px">
+    <button class="btn-sm ghost" onclick="renderActivityLog()">&#8635; Refresh</button>
+  </div>
+</div>
+<p style="font-size:.84rem;color:var(--muted);margin-bottom:16px;font-style:italic;">Every expense, invoice, mileage trip, and job change — in one clean timeline.</p>
+<div id="activity-log-out"></div>
 </div></div>
 
 <div class="toast" id="toast"></div>
@@ -1578,7 +1586,7 @@ function renderClients(search){
   }
   tb.innerHTML=clients.map(c=>{
     const jobs=S.jobs.filter(j=>j.clientId===c.id);
-    const billed=S.invoices.filter(i=>i.clientId===c.id).reduce((s,i)=>s+i.amt,0);
+    const billed=S.invoices.filter(i=>i.clientId===c.id).reduce((s,i)=>s+(i.amt||i.amount||0),0);
     const lastJob=jobs.sort((a,b)=>b.id-a.id)[0];
     const sourceColors={'Referral / Word of Mouth':'#4fa86e','Yard Sign / Drive By':'var(--amber)','Website':'#5a9fd4','Repeat Client':'#d4a040'};
     const sourceColor=sourceColors[c.source]||'var(--muted)';
@@ -1812,10 +1820,10 @@ function refreshAll(){
 
 // ── DASHBOARD ──
 function renderDashboard(){
-  const expTotal=S.expenses.reduce((s,e)=>s+e.amt,0);
+  const expTotal=S.expenses.reduce((s,e)=>s+(e.amt||e.amount||0),0);
   const milesTotal=S.mileage.reduce((s,m)=>s+m.miles,0);
   const openInv=S.invoices.filter(i=>i.status!=='paid');
-  const openInvTotal=openInv.reduce((s,i)=>s+i.amt,0);
+  const openInvTotal=openInv.reduce((s,i)=>s+(i.amt||i.amount||0),0);
   const activeJobs=S.jobs.filter(j=>j.status==='active').length;
   const el=id=>document.getElementById(id);
   if(el('dash-exp'))el('dash-exp').textContent='$'+expTotal.toFixed(2);
@@ -1887,7 +1895,7 @@ function renderJobs(){
   if(!S.jobs.length){tb.innerHTML='<tr><td colspan="8" class="empty-state">No jobs yet. Click + New Job to add one.</td></tr>';return;}
   tb.innerHTML=S.jobs.map(j=>{
     const client=S.clients.find(c=>c.id===j.clientId);
-    const expenses=S.expenses.filter(e=>e.jobId===j.id).reduce((s,e)=>s+e.amt,0);
+    const expenses=S.expenses.filter(e=>e.jobId===j.id).reduce((s,e)=>s+(e.amt||e.amount||0),0);
     const hours=S.hours.filter(h=>h.jobId===j.id).reduce((s,h)=>s+h.hrs,0);
     const profit=j.value-expenses;
     const statusColors={active:'var(--green)',pending:'var(--amber)',complete:'var(--muted)',cancelled:'var(--rust)'};
@@ -1942,7 +1950,7 @@ function renderInvoices(){
   if(!tb)return;
   const all=S.invoices;
   if(!all.length){tb.innerHTML='<tr><td colspan="7" class="empty-state">No invoices yet.</td></tr>';return;}
-  const total=all.filter(i=>i.status!=='paid').reduce((s,i)=>s+i.amt,0);
+  const total=all.filter(i=>i.status!=='paid').reduce((s,i)=>s+(i.amt||i.amount||0),0);
   const el=document.getElementById('inv-total');if(el)el.textContent='$'+total.toFixed(2)+' outstanding';
   tb.innerHTML=all.map(inv=>{
     const client=S.clients.find(c=>c.id===inv.clientId);
@@ -1985,15 +1993,15 @@ function renderExpenses(){
   const tb=document.getElementById('exp-tbody');
   if(!tb)return;
   if(!S.expenses.length){tb.innerHTML='<tr><td colspan="7" class="empty-state">No expenses logged yet.</td></tr>';return;}
-  const total=S.expenses.reduce((s,e)=>s+e.amt,0);
+  const total=S.expenses.reduce((s,e)=>s+(e.amt||e.amount||0),0);
   const el=document.getElementById('exp-total');if(el)el.textContent='$'+total.toFixed(2)+' YTD';
   tb.innerHTML=S.expenses.slice().reverse().map(exp=>{
     const job=S.jobs.find(j=>j.id===exp.jobId);
     return `<tr>
       <td style="font-size:.78rem;color:var(--muted);font-family:'Courier Prime',monospace;">${exp.date}</td>
       <td style="color:var(--cream);">${exp.vendor||'—'}</td>
-      <td style="font-size:.8rem;">${exp.cat||'Other'}</td>
-      <td style="color:var(--rust);">$${exp.amt.toFixed(2)}</td>
+      <td style="font-size:.8rem;">${exp.cat||exp.category||'Other'}</td>
+      <td style="color:var(--rust);">$${parseFloat(exp.amt||exp.amount||0).toFixed(2)}</td>
       <td style="font-size:.78rem;color:var(--muted);">${job?job.name:'—'}</td>
       <td style="font-size:.78rem;color:var(--muted);font-style:italic;">${exp.notes||'—'}</td>
       <td><button class="btn-sm danger" onclick="deleteExpense(${exp.id})" style="font-size:.66rem;padding:3px 7px;">×</button></td>
@@ -2131,14 +2139,14 @@ function deleteContractor(id){if(!confirm('Delete contractor?'))return;S.contrac
 
 // ── TAX REPORT ──
 function renderTaxReport(){
-  const expTotal=S.expenses.reduce((s,e)=>s+e.amt,0);
+  const expTotal=S.expenses.reduce((s,e)=>s+(e.amt||e.amount||0),0);
   const milesTotal=S.mileage.reduce((s,m)=>s+m.miles,0);
   const mileDed=milesTotal*IRS;
   const contractor1099=S.contractors.reduce((s,c)=>s+c.ytdTotal,0);
-  const invoicedTotal=S.invoices.reduce((s,i)=>s+i.amt,0);
-  const paidTotal=S.invoices.filter(i=>i.status==='paid').reduce((s,i)=>s+i.amt,0);
+  const invoicedTotal=S.invoices.reduce((s,i)=>s+(i.amt||i.amount||0),0);
+  const paidTotal=S.invoices.filter(i=>i.status==='paid').reduce((s,i)=>s+(i.amt||i.amount||0),0);
   const expByCat={};
-  S.expenses.forEach(e=>{expByCat[e.cat]=(expByCat[e.cat]||0)+e.amt;});
+  S.expenses.forEach(e=>{var _cat=e.cat||e.category||"Uncategorized";var _amt=e.amt||e.amount||0;expByCat[_cat]=(expByCat[_cat]||0)+_amt;});
   const el=id=>document.getElementById(id);
   if(el('tax-revenue'))el('tax-revenue').textContent='$'+paidTotal.toFixed(2);
   if(el('tax-expenses'))el('tax-expenses').textContent='$'+expTotal.toFixed(2);
@@ -2605,6 +2613,7 @@ window.showTab=function(n){
     var h=document.getElementById('tab-hub');
     if(h){h.style.display='flex';}
     if(typeof renderHub==='function')renderHub();
+  if(n==='reports'&&typeof renderTaxReport==='function'){renderTaxReport();renderActivityLog();}
     document.querySelectorAll('.nav-item').forEach(function(e){e.classList.remove('active');});
     var nh=document.getElementById('nav-hub');
     if(nh)nh.classList.add('active');
@@ -2637,6 +2646,35 @@ function hubDeleteExpense(eid){
   if(!confirm('Delete this expense?'))return;
   if(typeof deleteExpense==='function')deleteExpense(eid);
   hubRenderDetail();
+}
+
+
+function renderActivityLog(){
+  var out=document.getElementById('activity-log-out');
+  if(!out)return;
+  var entries=[];
+  (S.expenses||[]).forEach(function(e){entries.push({date:e.date||'',type:'Expense',icon:'💸',desc:(e.vendor||e.description||'Expense')+' — '+(e.cat||e.category||''),amt:'−$'+(parseFloat(e.amt||e.amount||0)).toFixed(2),color:'#e53935'});});
+  (S.invoices||[]).forEach(function(i){entries.push({date:i.date||'',type:'Invoice',icon:'🧾',desc:(i.description||'Invoice')+(i.clientName?' → '+i.clientName:''),amt:'$'+(parseFloat(i.amt||i.amount||0)).toFixed(2),color:i.status==='paid'?'#4caf50':'#f5a623'});});
+  (S.mileage||[]).forEach(function(m){entries.push({date:m.date||'',type:'Mileage',icon:'🚗',desc:(m.from||'')+(m.to?' → '+m.to:'')+(m.purpose?' ('+m.purpose+')':''),amt:parseFloat(m.miles||0).toFixed(1)+' mi',color:'#7c9cbf'});});
+  (S.jobs||[]).forEach(function(j){entries.push({date:j.start||j.created||'',type:'Job',icon:'🏗️',desc:(j.name||j.title||'Job')+(j.clientName?' — '+j.clientName:''),amt:j.value?'$'+parseFloat(j.value).toLocaleString():'',color:'#f5a623'});});
+  (S.savedContracts||[]).forEach(function(c){entries.push({date:c.date||c.created||'',type:'Contract',icon:'📄',desc:(c.docNum||'Contract')+' — '+(c.type||'Agreement')+(c.jobName?' / '+c.jobName:''),amt:c.total?'$'+parseFloat(c.total).toLocaleString():'',color:'#9c7cbf'});});
+  entries.sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
+  if(!entries.length){out.innerHTML='<div style="color:var(--muted);font-size:.84rem;padding:20px 0">No activity logged yet. Add expenses, invoices, and jobs to see your log here.</div>';return;}
+  var byDate={};
+  entries.forEach(function(e){var d=e.date||'No Date';if(!byDate[d])byDate[d]=[];byDate[d].push(e);});
+  var html='';
+  Object.keys(byDate).sort(function(a,b){return b.localeCompare(a);}).forEach(function(date){
+    html+='<div style="font-size:.68rem;letter-spacing:.1em;color:var(--muted);font-weight:700;padding:10px 0 4px;border-bottom:1px solid var(--border);margin-bottom:4px">'+date+'</div>';
+    byDate[date].forEach(function(e){
+      html+='<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #111">';
+      html+='<span style="font-size:1rem;width:22px;text-align:center">'+e.icon+'</span>';
+      html+='<span style="font-size:.65rem;color:#444;background:#181818;padding:1px 6px;border-radius:3px;min-width:60px;text-align:center">'+e.type+'</span>';
+      html+='<span style="font-size:.8rem;color:#bbb;flex:1">'+e.desc+'</span>';
+      html+='<span style="font-size:.82rem;font-weight:700;color:'+e.color+'">'+e.amt+'</span>';
+      html+='</div>';
+    });
+  });
+  out.innerHTML=html;
 }
 
 </script>
