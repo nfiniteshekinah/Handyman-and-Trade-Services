@@ -10,11 +10,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --black:#faf8f4;--steel-dk:#f0ece4;--steel:#ffffff;--plate:#e8e4dc;
-  --amber:#b87000;--amber-l:#d4900a;--amber-d:#8a5200;
+  --black:#faf9f6;--steel-dk:#f0ede6;--steel:#ffffff;--plate:#ece9e1;
+  --amber:#c07800;--amber-l:#e49a20;--amber-d:#8a5200;
   --rust:#c04420;--green:#2a7a4a;--blue:#2a5f8a;
-  --cream:#1a1917;--warm:#3d3830;--muted:#5a5550;
-  --border:rgba(0,0,0,.12);--borderl:rgba(0,0,0,.22);
+  --cream:#1a1917;--warm:#3d3830;--muted:#6b6258;
+  --border:rgba(0,0,0,.10);--borderl:rgba(0,0,0,.20);
   --shadow:0 4px 20px rgba(0,0,0,.10);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -341,6 +341,96 @@ button,.btn,.submit-btn{font-size:17px!important;padding:14px 28px!important;fon
 section{padding:56px 24px!important}
 .card,.service-card,.form-card,.estimate-card{background:#fff!important;border-radius:10px!important}
 a{color:#c07800!important}
+
+/* Keep nav dark for branding */
+.site-nav, nav, header, .nav-bar, .navbar, [class*="nav-wrap"], [class*="header"] {
+  background: #1a1917 !important;
+  color: #ede6d5 !important;
+}
+.site-nav a, nav a, header a, .nav-link {
+  color: #ede6d5 !important;
+}
+.site-nav a:hover, nav a:hover {
+  color: var(--amber) !important;
+}
+/* Hero left panel stays dark (it's a sign/photo) */
+.hero-left, .hero-sign, [class*="hero-img"], [class*="sign"] {
+  background: #0c0b09 !important;
+}
+/* Estimate / contact form: clean white */
+.estimate-form, .hq-form, .form-section, [id*="estimate"], [id*="form"] {
+  background: #ffffff !important;
+  color: #1a1917 !important;
+}
+/* Testimonials / reviews section */
+.testimonial, .review, [class*="testimonial"], [class*="review"] {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,.10) !important;
+  color: #1a1917 !important;
+}
+/* Footer */
+footer, .footer {
+  background: #1a1917 !important;
+  color: #ede6d5 !important;
+}
+/* Service card text on white */
+.svc-name, .svc-title, .svc-card h3, .svc-card h2 {
+  color: #1a1917 !important;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+}
+.svc-desc, .svc-card p {
+  color: #3d3830 !important;
+  font-size: 1rem !important;
+  line-height: 1.65 !important;
+}
+.svc-badge, .svc-tag, [class*="badge"] {
+  background: var(--plate) !important;
+  color: var(--warm) !important;
+  font-size: .85rem !important;
+}
+/* Section headings — dark on light bg */
+.section-label, .eyebrow, [class*="label"] {
+  color: var(--amber) !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+}
+h2.section-title, .section-title {
+  color: #1a1917 !important;
+  font-size: clamp(1.6rem,3.5vw,2.2rem) !important;
+}
+/* Estimate form inputs — large and readable */
+.hq-form input, .hq-form textarea, .hq-form select,
+[id*="hq-"] {
+  font-size: 18px !important;
+  padding: 14px 16px !important;
+  border: 2px solid #ccc !important;
+  border-radius: 6px !important;
+  background: #fff !important;
+  color: #1a1917 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+.hq-form input:focus, .hq-form textarea:focus, .hq-form select:focus {
+  border-color: var(--amber) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(192,120,0,.15) !important;
+}
+.hq-form label {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #1a1917 !important;
+  display: block !important;
+  margin-bottom: 6px !important;
+}
+/* Submit button */
+.submit-btn {
+  font-size: 18px !important;
+  padding: 16px 32px !important;
+  font-weight: 700 !important;
+  letter-spacing: .03em !important;
+}
+
 </style>
 <style>
 /* ── Two-column layout ── */
