@@ -262,6 +262,15 @@ body{background:var(--bg);color:var(--cream);font-family:'Barlow',sans-serif;fon
 .hnb{background:#f5a623;color:#000;font-weight:700;font-size:.76rem;padding:6px 15px;border-radius:4px;border:none;cursor:pointer}
 .hnb:hover{background:#ffcc55}
 .hdesc{background:#151515;border-left:3px solid #2a2a2a;padding:8px 12px;border-radius:0 4px 4px 0;font-size:.78rem;color:#555;margin-bottom:11px;line-height:1.5}
+/* ── APP ACCESSIBILITY: Bigger text ──*/
+body,.app-body{font-size:15px!important;line-height:1.65!important}
+.nav-item,.nav-label{font-size:14px!important}
+td,th{font-size:14px!important;padding:10px 12px!important}
+label,.form-label{font-size:14px!important}
+input:not([type=file]):not([type=checkbox]),textarea,select{font-size:15px!important;padding:10px 12px!important}
+.btn-sm{font-size:13px!important;padding:6px 12px!important}
+.sec-header h2{font-size:1.2rem!important}
+.stat-val,.kpi-val,[id*=total]{font-size:1.9rem!important}
 </style>
 </head>
 <body>
@@ -289,6 +298,7 @@ body{background:var(--bg);color:var(--cream);font-family:'Barlow',sans-serif;fon
     <div class="nav-item" onclick="showTab('clients')" id="nav-clients"><span class="ic">👥</span><span>Clients / CRM</span></div>
     <div class="nav-item" onclick="showTab('jobs')" id="nav-jobs"><span class="ic">🏗️</span><span>Jobs</span></div>
     <div class="nav-item" onclick="showTab('hub')" id="nav-hub"><span class="nav-icon">&#128193;</span><span class="nav-label">Project Hub</span></div>
+      <div class="nav-item" id="nav-portfolio" onclick="showTab('portfolio');syncPortfolio();renderPortfolioTab()">📸 Portfolio</div>
     <div class="nav-item" onclick="showTab('analyzer')" id="nav-analyzer"><span class="ic">💡</span><span>Job Analyzer</span></div>
     <div class="nav-item" onclick="showTab('contracts')" id="nav-contracts"><span class="ic">📝</span><span>Contracts</span></div>
     <div class="nav-item" onclick="showTab('invoices')" id="nav-invoices"><span class="ic">📄</span><span>Invoices</span></div>
@@ -2858,12 +2868,57 @@ function setExpType(t){
 function toggleJobDetail(id){if(typeof openJobDetail==='function')openJobDetail(id);}
 function addPhotosToJob(id){if(typeof jdpAddPhotos==='function')jdpAddPhotos(id);}
 
+
+function getPortfolio(){try{return JSON.parse(localStorage.getItem('drakePortfolio')||'[]');}catch(e){return[];}}
+function savePortfolio(p){try{localStorage.setItem('drakePortfolio',JSON.stringify(p));}catch(e){}}
+function syncPortfolio(){
+  var items=(S.jobs||[]).filter(function(j){return j.portfolio&&j.photos&&j.photos.length;}).map(function(j){
+    return{id:j.id,name:j.name,description:j.description||'',type:j.type||'',photos:j.photos||[],date:j.start||j.created||''};
+  });
+  savePortfolio(items);
+}
+function togglePortfolio(id){
+  var j=S.jobs.find(function(x){return String(x.id)===String(id);});
+  if(!j)return;
+  j.portfolio=!j.portfolio;
+  save();syncPortfolio();renderPortfolioTab();
+  if(typeof showToast==='function')showToast(j.portfolio?'Added to public portfolio \u2713':'Removed from portfolio');
+}
+function renderPortfolioTab(){
+  var el=document.getElementById('portfolio-tab-content');
+  if(!el)return;
+  var jobs=(S.jobs||[]).filter(function(j){return j.photos&&j.photos.length;});
+  if(!jobs.length){el.innerHTML='<div style="color:var(--muted);text-align:center;padding:40px;font-size:1rem">No jobs with photos yet.<br>Add photos to a job, then toggle it as Portfolio to show on your website.</div>';return;}
+  el.innerHTML=jobs.map(function(j){
+    var isP=j.portfolio;
+    var thumbs=(j.photos||[]).map(function(s){return'<img src="'+s+'" onclick="this.style.width=this.style.width===\'220px\'?\'72px\':\'220px\'" style="width:72px;height:72px;object-fit:cover;border-radius:6px;border:2px solid var(--borderl);margin:3px;cursor:pointer">';}).join('');
+    return'<div style="background:var(--card);border:2px solid '+(isP?'var(--amber)':'var(--border)')+';border-radius:8px;padding:16px;margin-bottom:12px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">'
+        +'<div><div style="font-size:1rem;font-weight:700;color:var(--cream)">'+j.name+'</div><div style="font-size:.8rem;color:var(--muted)">'+(j.type||'General')+(j.start?' \u00b7 '+j.start:'')+'</div></div>'
+        +'<button onclick="togglePortfolio(\''+j.id+'\')" style="font-size:.8rem;padding:7px 16px;border:2px solid '+(isP?'var(--amber)':'var(--borderl)')+';border-radius:5px;cursor:pointer;background:'+(isP?'var(--amber)':'var(--lift)')+';color:'+(isP?'#1a1917':'var(--muted)')+';font-weight:700">'+(isP?'\u2605 In Portfolio':'\u2606 Add to Portfolio')+'</button>'
+      +'</div>'
+      +(j.description?'<div style="font-size:.85rem;color:var(--warm);margin-bottom:8px">'+j.description+'</div>':'')
+      +'<div style="display:flex;flex-wrap:wrap;gap:4px">'+thumbs+'</div>'
+      +'<div style="font-size:.75rem;color:'+(isP?'var(--amber)':'var(--muted)')+';margin-top:8px">'+(isP?'\u2713 Visible on your public website':'Not published yet \u2014 '+j.photos.length+' photo(s) ready')+'</div>'
+    +'</div>';
+  }).join('');
+}
+
 </script>
 
 <div id="tab-hub" class="tab-panel">
 <div class="hub-top">
   <h2>&#128193; PROJECT HUB</h2>
   <div class="hub-si"><input id="hub-search" placeholder="Search customers, jobs, contracts..." oninput="renderHub()"></div>
+<div class="tab-panel" id="tab-portfolio">
+  <div class="sec-header" style="margin-bottom:16px">
+    <h2>📸 PORTFOLIO</h2>
+  </div>
+  <div style="background:var(--amber);color:#1a1917;padding:12px 16px;border-radius:6px;margin-bottom:18px;font-size:.9rem;font-weight:600;line-height:1.5">
+    💡 <strong>How it works:</strong> Add photos to any job, then click &quot;Add to Portfolio&quot;. Those photos instantly appear in the &quot;Our Work&quot; gallery on your public website for all visitors to see.
+  </div>
+  <div id="portfolio-tab-content"><div style="color:var(--muted);padding:20px">Loading...</div></div>
+</div>
   <button class="hnb" onclick="hubGlobalNew()">+ NEW</button>
 </div>
 <div class="hub-panels">

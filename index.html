@@ -322,6 +322,17 @@ footer{background:var(--steel-dk);border-top:1px solid var(--border);padding:60p
   body{background:#fff;color:#111;}
   .contract-body,.contract-body p,.contract-body .hl{color:#222;}
 }
+/* ── ACCESSIBILITY: Readable for older users ──*/
+body{font-size:18px!important;line-height:1.75!important;color:#1a1917!important;background:#faf9f6!important}
+h1{font-size:clamp(2rem,5vw,3rem)!important;line-height:1.2!important}
+h2{font-size:clamp(1.4rem,3.5vw,2rem)!important}
+h3{font-size:1.2rem!important}
+p,li,label,span.body{font-size:18px!important;line-height:1.75!important}
+input[type=text],input[type=tel],input[type=email],textarea,select{font-size:18px!important;padding:14px 16px!important;border-radius:6px!important;border:2px solid #ccc!important}
+button,.btn,.submit-btn{font-size:17px!important;padding:14px 28px!important;font-weight:700!important}
+section{padding:56px 24px!important}
+.card,.service-card,.form-card,.estimate-card{background:#fff!important;border-radius:10px!important}
+a{color:#c07800!important}
 </style>
 <style>
 /* ── Two-column layout ── */
@@ -872,6 +883,61 @@ function submitEstimate(){
     });
   });
 }
+</script>
+<!-- PROJECT PORTFOLIO -->
+<section id="portfolio" style="background:#f0ede6;padding:60px 24px">
+  <div style="max-width:960px;margin:0 auto;text-align:center">
+    <h2 style="font-size:clamp(1.6rem,4vw,2.2rem);color:#1a1917;margin-bottom:8px">Our Work</h2>
+    <p style="color:#555;font-size:1.1rem;margin-bottom:36px;max-width:600px;margin-left:auto;margin-right:auto">Real projects. Real results. Photos from completed jobs right here in Suwannee County, FL.</p>
+    <div id="portfolio-gallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;text-align:left"></div>
+    <div style="margin-top:36px"><a href="#estimate" style="background:#c07800;color:#fff;padding:16px 36px;border-radius:8px;font-size:18px;font-weight:700;text-decoration:none;display:inline-block;box-shadow:0 4px 16px rgba(192,120,0,.3)">Get Your Free Estimate &#8594;</a></div>
+  </div>
+</section>
+<script>
+(function(){
+  function loadPortfolio(){
+    var g=document.getElementById('portfolio-gallery');if(!g)return;
+    var items=[];try{items=JSON.parse(localStorage.getItem('drakePortfolio')||'[]');}catch(e){}
+    if(!items.length){g.innerHTML='<div style="color:#888;text-align:center;padding:40px;grid-column:1/-1;font-size:1.1rem">Portfolio coming soon &#8212; check back!</div>';return;}
+    g.innerHTML=items.map(function(job){
+      var mp=job.photos&&job.photos[0]||'';
+      return'<div style="background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.09);cursor:pointer" onclick="openGallery(''+job.id+'')">'
+        +(mp?'<img src="'+mp+'" style="width:100%;height:200px;object-fit:cover">':'<div style="width:100%;height:200px;background:#e8e5de;display:flex;align-items:center;justify-content:center;color:#888;font-size:2rem">&#128247;</div>')
+        +'<div style="padding:16px">'
+          +'<div style="font-size:1.05rem;font-weight:700;color:#1a1917;margin-bottom:4px">'+job.name+'</div>'
+          +(job.type?'<div style="font-size:.9rem;color:#c07800;font-weight:600;margin-bottom:6px">'+job.type+'</div>':'')
+          +(job.description?'<div style="font-size:.9rem;color:#555;line-height:1.55">'+job.description.substring(0,120)+(job.description.length>120?'&hellip;':'')+'</div>':'')
+          +'<div style="margin-top:8px;font-size:.8rem;color:#999">&#128247; '+job.photos.length+' photo'+(job.photos.length!==1?'s':'')+'</div>'
+        +'</div></div>';
+    }).join('');
+  }
+  window._pgJobs=[];
+  window.openGallery=function(id){
+    var items=[];try{items=JSON.parse(localStorage.getItem('drakePortfolio')||'[]');}catch(e){}
+    var job=items.find(function(j){return String(j.id)===String(id);});
+    if(!job||!job.photos||!job.photos.length)return;
+    var idx=0;
+    var ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+    ov.onclick=function(e){if(e.target===ov)document.body.removeChild(ov);};
+    function render(){
+      ov.innerHTML='<div style="max-width:90vw;text-align:center">'
+        +'<img src="'+job.photos[idx]+'" style="max-width:90vw;max-height:70vh;object-fit:contain;border-radius:8px;display:block;margin:0 auto">'
+        +'<div style="color:#fff;margin-top:12px;font-size:1rem">'+job.name+' &bull; '+(idx+1)+' / '+job.photos.length+'</div>'
+        +(job.photos.length>1?'<div style="margin-top:12px;display:flex;justify-content:center;gap:16px">'
+          +'<button onclick="window._pgP()" style="background:#c07800;color:#fff;border:none;padding:12px 28px;border-radius:6px;font-size:1rem;cursor:pointer;font-weight:700">&#8592; Prev</button>'
+          +'<button onclick="window._pgN()" style="background:#c07800;color:#fff;border:none;padding:12px 28px;border-radius:6px;font-size:1rem;cursor:pointer;font-weight:700">Next &#8594;</button>'
+        +'</div>':'')
+        +'<button onclick="document.body.removeChild(document.querySelector('[style*=position\:fixed]'))" style="margin-top:16px;background:none;border:1px solid #fff;color:#fff;padding:8px 20px;border-radius:5px;cursor:pointer;font-size:.9rem">Close</button>'
+      +'</div>';
+    }
+    window._pgP=function(){idx=(idx-1+job.photos.length)%job.photos.length;render();};
+    window._pgN=function(){idx=(idx+1)%job.photos.length;render();};
+    render();document.body.appendChild(ov);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadPortfolio);
+  else loadPortfolio();
+})();
 </script>
 </body>
 </html>
