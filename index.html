@@ -28,7 +28,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;o
 @media(max-width:860px){
   .page-wrap{flex-direction:column;align-items:stretch;}
   .col-left,.col-right{width:100% !important;flex-shrink:unset;border:none;position:static !important;max-height:none !important;}
-  .col-right{top:auto !important;}
+  .col-right{top:0 !important;position:relative !important;align-self:flex-start !important;}
   .col-right-inner{padding:24px 20px !important;}
   .headline-block,.estimate-block,.gallery-block,.reviews-block{padding:24px 20px;}
 }
@@ -429,6 +429,43 @@ h2.section-title, .section-title {
   padding: 16px 32px !important;
   font-weight: 700 !important;
   letter-spacing: .03em !important;
+}
+
+
+/* ── LAYOUT ALIGNMENT FIX ── */
+@media (min-width: 769px) {
+  .page-wrap {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+  }
+  .col-left {
+    flex-shrink: 0;
+    align-self: flex-start !important;
+    position: sticky !important;
+    top: 0 !important;
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+  .col-right {
+    flex: 1;
+    position: relative !important;
+    top: 0 !important;
+    align-self: flex-start !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+}
+@media (max-width: 768px) {
+  .page-wrap {
+    flex-direction: column !important;
+  }
+  .col-left, .col-right {
+    width: 100% !important;
+    position: static !important;
+    top: 0 !important;
+    max-height: none !important;
+  }
 }
 
 </style>
